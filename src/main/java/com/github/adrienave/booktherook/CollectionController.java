@@ -25,7 +25,11 @@ public class CollectionController implements Initializable {
 
     @FXML
     protected void createFolder() {
-        TreeItem<String> newFolder = new TreeItem<>(newFolderNameInput.getText());
-        collectionRoot.getChildren().add(newFolder);
+        String name = newFolderNameInput.getText();
+        if (!name.isBlank()) {
+            TreeItem<String> newFolder = new TreeItem<>(name);
+            collectionRoot.getChildren().add(newFolder);
+            newFolderNameInput.setText("");
+        }
     }
 }
