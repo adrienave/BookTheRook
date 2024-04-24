@@ -3,6 +3,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
@@ -15,5 +16,8 @@
       </font>
    </Label>
    <TextField fx:id="newFolderNameInput" layoutX="14.0" layoutY="78.0" />
-   <Button layoutX="170.0" layoutY="78.0" mnemonicParsing="false" onAction="#createFolder" text="+" />
+   <Button accessibleHelp="Create Folder" accessibleText="Create Folder" layoutX="170.0" layoutY="78.0" mnemonicParsing="false" onAction="#createFolder" text="+">
+      <tooltip>
+         <Tooltip text="Create Folder" />
+      </tooltip></Button>
 </AnchorPane>
