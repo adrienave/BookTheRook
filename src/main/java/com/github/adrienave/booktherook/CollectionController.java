@@ -11,25 +11,25 @@ import java.util.ResourceBundle;
 
 public class CollectionController implements Initializable {
     @FXML
-    private TreeView<String> collectionTree;
+    private TreeView<Object> collectionTree;
     @FXML
     private TextField newFolderNameInput;
 
-    private TreeItem<String> collectionRoot;
+    private TreeItem<Object> collectionRoot;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         collectionRoot = new TreeItem<>("Folders");
         collectionRoot.setExpanded(true);
         collectionTree.setRoot(collectionRoot);
-        collectionTree.setCellFactory((TreeView<String> tree) -> new CollectionTreeCellImpl());
+        collectionTree.setCellFactory((TreeView<Object> tree) -> new CollectionTreeCellImpl());
     }
 
     @FXML
     protected void createFolder() {
         String name = newFolderNameInput.getText();
         if (!name.isBlank()) {
-            TreeItem<String> newFolder = new TreeItem<>(name);
+            TreeItem<Object> newFolder = new TreeItem<>(name);
             collectionRoot.getChildren().add(newFolder);
             newFolderNameInput.setText("");
         }

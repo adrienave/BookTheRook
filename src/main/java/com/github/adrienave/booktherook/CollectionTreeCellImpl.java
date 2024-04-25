@@ -5,20 +5,22 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 
-public class CollectionTreeCellImpl extends TreeCell<String> {
+public class CollectionTreeCellImpl extends TreeCell<Object> {
 
-    static int game_index = 1;
+    private static int game_index = 1;
 
     @Override
-    protected void updateItem(String item, boolean empty) {
+    protected void updateItem(Object item, boolean empty) {
         super.updateItem(item, empty);
 
         if (empty || item == null) {
             setText(null);
             setGraphic(null);
         } else {
-            setContextMenu(generateContextMenu());
-            setText(item);
+            if (item instanceof String) {
+                setContextMenu(generateContextMenu());
+            }
+            setText(item.toString());
         }
     }
 
@@ -26,7 +28,7 @@ public class CollectionTreeCellImpl extends TreeCell<String> {
         ContextMenu contextMenu = new ContextMenu();
         MenuItem createNewGame = new MenuItem("Add new game");
         createNewGame.setOnAction(event -> {
-            TreeItem<String> game = new TreeItem<>("Game " + game_index++);
+            TreeItem<Object> game = new TreeItem<>(new GameRecord("Game " + game_index++));
             getTreeItem().getChildren().add(game);
             getTreeItem().setExpanded(true);
         });
