@@ -17,23 +17,25 @@ public class CollectionTreeCellImpl extends TreeCell<Object> {
         if (empty || item == null) {
             setText(null);
             setGraphic(null);
+            setContextMenu(null);
         } else {
-            if (item instanceof String) {
-                setContextMenu(generateContextMenu());
-            }
+            setContextMenu(generateContextMenu(item));
             setText(item.toString());
         }
     }
 
-    private ContextMenu generateContextMenu() {
-        ContextMenu contextMenu = new ContextMenu();
-        MenuItem createNewGame = new MenuItem("Add new game");
-        createNewGame.setOnAction(event -> {
-            TreeItem<Object> game = new TreeItem<>(new GameRecord("Game " + game_index++));
-            getTreeItem().getChildren().add(game);
-            getTreeItem().setExpanded(true);
-        });
-        contextMenu.getItems().add(createNewGame);
+    private ContextMenu generateContextMenu(Object item) {
+        ContextMenu contextMenu = null;
+        if (item instanceof String) {
+            contextMenu = new ContextMenu();
+            MenuItem createNewGame = new MenuItem("Add new game");
+            createNewGame.setOnAction(event -> {
+                TreeItem<Object> game = new TreeItem<>(new GameRecord("Game " + game_index++));
+                getTreeItem().getChildren().add(game);
+                getTreeItem().setExpanded(true);
+            });
+            contextMenu.getItems().add(createNewGame);
+        }
         return contextMenu;
     }
 
