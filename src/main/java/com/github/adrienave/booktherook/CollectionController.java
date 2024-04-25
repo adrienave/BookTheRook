@@ -20,7 +20,9 @@ public class CollectionController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         collectionRoot = new TreeItem<>("Folders");
+        collectionRoot.setExpanded(true);
         collectionTree.setRoot(collectionRoot);
+        collectionTree.setCellFactory((TreeView<String> tree) -> new CollectionTreeCellImpl());
     }
 
     @FXML
