@@ -1,5 +1,6 @@
-package com.github.adrienave.booktherook;
+package com.github.adrienave.booktherook.javafx;
 
+import com.github.adrienave.booktherook.model.GameRecord;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeCell;

@@ -1,11 +1,10 @@
-package com.github.adrienave.booktherook;
+package com.github.adrienave.booktherook.model;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class GameRecord {
     private final String name;
-
-    public GameRecord(String name) {
-        this.name = name;
-    }
 
     @Override
     public String toString() {

@@ -1,5 +1,6 @@
-package com.github.adrienave.booktherook;
+package com.github.adrienave.booktherook.controller;
 
+import com.github.adrienave.booktherook.javafx.CollectionTreeCellImpl;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
