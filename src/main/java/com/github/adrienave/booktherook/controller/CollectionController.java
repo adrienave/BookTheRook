@@ -10,6 +10,7 @@ import javafx.scene.control.TreeView;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class CollectionController implements Initializable {
@@ -30,6 +31,16 @@ public class CollectionController implements Initializable {
             throw new RuntimeException("Cannot create data directory", e);
         }
         collectionRoot = new TreeItem<>("Folders");
+        List<String> existingFolders;
+        try {
+            existingFolders = fileSystemManager.getFolderNames();
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot read content of data directory", e);
+        }
+        existingFolders.forEach(folderName -> {
+            TreeItem<Object> folderItem = new TreeItem<>(folderName);
+            collectionRoot.getChildren().add(folderItem);
+        });
         collectionRoot.setExpanded(true);
         collectionTree.setRoot(collectionRoot);
         collectionTree.setCellFactory((TreeView<Object> tree) -> new CollectionTreeCellImpl());
