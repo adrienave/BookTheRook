@@ -36,6 +36,13 @@ public class CollectionController implements Initializable {
             throw new RuntimeException("Cannot create data directory", e);
         }
         collectionRoot = new TreeItem<>("Folders");
+        loadDataToTree();
+        collectionRoot.setExpanded(true);
+        collectionTree.setRoot(collectionRoot);
+        collectionTree.setCellFactory((TreeView<Object> tree) -> new CollectionTreeCellImpl(this));
+    }
+
+    private void loadDataToTree() {
         List<String> existingFolderNames;
         try {
             existingFolderNames = fileSystemManager.getFolderNames();
@@ -44,33 +51,28 @@ public class CollectionController implements Initializable {
         }
         existingFolderNames.forEach(folderName -> {
             TreeItem<Object> folderItem = new TreeItem<>(folderName);
-            List<String> gameNames;
             try {
-                gameNames = fileSystemManager.getFileNamesInFolder(folderName);
+                fileSystemManager.getFileNamesInFolder(folderName).forEach(name -> {
+                    String formattedGameName = FilenameUtils.removeExtension(name);
+                    TreeItem<Object> gameItem = new TreeItem<>(new GameRecord(formattedGameName));
+                    folderItem.getChildren().add(gameItem);
+                    game_index++;
+                });
             } catch (IOException e) {
                 throw new RuntimeException(String.format("Cannot read content of %s directory", folderName), e);
             }
-            gameNames.forEach(name -> {
-                String formattedGameName = FilenameUtils.removeExtension(name);
-                TreeItem<Object> gameItem = new TreeItem<>(formattedGameName);
-                folderItem.getChildren().add(gameItem);
-            });
-            game_index += gameNames.size();
             collectionRoot.getChildren().add(folderItem);
         });
         try {
             fileSystemManager.getFileNamesInFolder("").forEach(gameName -> {
                 String formattedGameName = FilenameUtils.removeExtension(gameName);
-                TreeItem<Object> gameItem = new TreeItem<>(formattedGameName);
+                TreeItem<Object> gameItem = new TreeItem<>(new GameRecord(formattedGameName));
                 collectionRoot.getChildren().add(gameItem);
                 game_index++;
             });
         } catch (IOException e) {
             throw new RuntimeException("Cannot read content of data directory", e);
         }
-        collectionRoot.setExpanded(true);
-        collectionTree.setRoot(collectionRoot);
-        collectionTree.setCellFactory((TreeView<Object> tree) -> new CollectionTreeCellImpl(this));
     }
 
     @FXML
