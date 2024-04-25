@@ -29,4 +29,10 @@ public class FileSystemManager {
     public void createGame(String name, String subFolder) throws IOException {
         Files.createFile(DATA_PATH.resolve(Path.of(subFolder, String.format("%s.pgn", name))));
     }
+
+    public List<String> getFileNamesInFolder(String folderName) throws IOException {
+        try (Stream<Path> stream = Files.list(DATA_PATH.resolve(folderName))) {
+            return stream.filter(Files::isRegularFile).map(path -> path.getFileName().toString()).collect(Collectors.toList());
+        }
+    }
 }

@@ -43,8 +43,28 @@ public class CollectionController implements Initializable {
         }
         existingFolderNames.forEach(folderName -> {
             TreeItem<Object> folderItem = new TreeItem<>(folderName);
+            List<String> gameNames;
+            try {
+                gameNames = fileSystemManager.getFileNamesInFolder(folderName);
+            } catch (IOException e) {
+                throw new RuntimeException(String.format("Cannot read content of %s directory", folderName), e);
+            }
+            gameNames.forEach(name -> {
+                TreeItem<Object> gameItem = new TreeItem<>(name);
+                folderItem.getChildren().add(gameItem);
+            });
+            game_index += gameNames.size();
             collectionRoot.getChildren().add(folderItem);
         });
+        try {
+            fileSystemManager.getFileNamesInFolder("").forEach(gameName -> {
+                TreeItem<Object> gameItem = new TreeItem<>(gameName);
+                collectionRoot.getChildren().add(gameItem);
+                game_index++;
+            });
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot read content of data directory", e);
+        }
         collectionRoot.setExpanded(true);
         collectionTree.setRoot(collectionRoot);
         collectionTree.setCellFactory((TreeView<Object> tree) -> new CollectionTreeCellImpl(this));
@@ -70,8 +90,9 @@ public class CollectionController implements Initializable {
         TreeItem<Object> game = new TreeItem<>(new GameRecord(gameName));
         folderItem.getChildren().add(game);
         folderItem.setExpanded(true);
+        String folderName = folderItem.getParent() != null ? (String) folderItem.getValue() : "";
         try {
-            fileSystemManager.createGame(gameName, (String) folderItem.getValue());
+            fileSystemManager.createGame(gameName, folderName);
         } catch (IOException e) {
             throw new RuntimeException(String.format("Cannot create game file %s", gameName), e);
         }
