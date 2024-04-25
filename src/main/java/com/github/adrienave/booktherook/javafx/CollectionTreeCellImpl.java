@@ -1,14 +1,15 @@
 package com.github.adrienave.booktherook.javafx;
 
-import com.github.adrienave.booktherook.model.GameRecord;
+import com.github.adrienave.booktherook.controller.CollectionController;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeCell;
-import javafx.scene.control.TreeItem;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class CollectionTreeCellImpl extends TreeCell<Object> {
 
-    private static int game_index = 1;
+    private final CollectionController collectionController;
 
     @Override
     protected void updateItem(Object item, boolean empty) {
@@ -29,14 +30,9 @@ public class CollectionTreeCellImpl extends TreeCell<Object> {
         if (item instanceof String) {
             contextMenu = new ContextMenu();
             MenuItem createNewGame = new MenuItem("Add new game");
-            createNewGame.setOnAction(event -> {
-                TreeItem<Object> game = new TreeItem<>(new GameRecord("Game " + game_index++));
-                getTreeItem().getChildren().add(game);
-                getTreeItem().setExpanded(true);
-            });
+            createNewGame.setOnAction(event -> collectionController.createGameInFolder(getTreeItem()));
             contextMenu.getItems().add(createNewGame);
         }
         return contextMenu;
     }
-
 }

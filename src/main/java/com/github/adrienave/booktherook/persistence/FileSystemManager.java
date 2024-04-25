@@ -21,8 +21,12 @@ public class FileSystemManager {
     }
 
     public List<String> getFolderNames() throws IOException {
-        try(Stream<Path> stream = Files.list(DATA_PATH)) {
+        try (Stream<Path> stream = Files.list(DATA_PATH)) {
             return stream.filter(Files::isDirectory).map(path -> path.getFileName().toString()).collect(Collectors.toList());
         }
+    }
+
+    public void createGame(String name, String subFolder) throws IOException {
+        Files.createFile(DATA_PATH.resolve(Path.of(subFolder, String.format("%s.pgn", name))));
     }
 }

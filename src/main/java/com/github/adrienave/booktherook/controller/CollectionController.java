@@ -1,6 +1,7 @@
 package com.github.adrienave.booktherook.controller;
 
 import com.github.adrienave.booktherook.javafx.CollectionTreeCellImpl;
+import com.github.adrienave.booktherook.model.GameRecord;
 import com.github.adrienave.booktherook.persistence.FileSystemManager;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -14,6 +15,9 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class CollectionController implements Initializable {
+
+    private static int game_index = 1;
+
     @FXML
     private TreeView<Object> collectionTree;
     @FXML
@@ -31,19 +35,19 @@ public class CollectionController implements Initializable {
             throw new RuntimeException("Cannot create data directory", e);
         }
         collectionRoot = new TreeItem<>("Folders");
-        List<String> existingFolders;
+        List<String> existingFolderNames;
         try {
-            existingFolders = fileSystemManager.getFolderNames();
+            existingFolderNames = fileSystemManager.getFolderNames();
         } catch (IOException e) {
             throw new RuntimeException("Cannot read content of data directory", e);
         }
-        existingFolders.forEach(folderName -> {
+        existingFolderNames.forEach(folderName -> {
             TreeItem<Object> folderItem = new TreeItem<>(folderName);
             collectionRoot.getChildren().add(folderItem);
         });
         collectionRoot.setExpanded(true);
         collectionTree.setRoot(collectionRoot);
-        collectionTree.setCellFactory((TreeView<Object> tree) -> new CollectionTreeCellImpl());
+        collectionTree.setCellFactory((TreeView<Object> tree) -> new CollectionTreeCellImpl(this));
     }
 
     @FXML
@@ -58,6 +62,18 @@ public class CollectionController implements Initializable {
             TreeItem<Object> newFolder = new TreeItem<>(name);
             collectionRoot.getChildren().add(newFolder);
             newFolderNameInput.setText("");
+        }
+    }
+
+    public void createGameInFolder(TreeItem<Object> folderItem) {
+        String gameName = "Game " + game_index++;
+        TreeItem<Object> game = new TreeItem<>(new GameRecord(gameName));
+        folderItem.getChildren().add(game);
+        folderItem.setExpanded(true);
+        try {
+            fileSystemManager.createGame(gameName, (String) folderItem.getValue());
+        } catch (IOException e) {
+            throw new RuntimeException(String.format("Cannot create game file %s", gameName), e);
         }
     }
 }
