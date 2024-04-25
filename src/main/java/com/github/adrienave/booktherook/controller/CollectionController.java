@@ -39,6 +39,11 @@ public class CollectionController implements Initializable {
     public void createFolder() {
         String name = newFolderNameInput.getText();
         if (!name.isBlank()) {
+            try {
+                fileSystemManager.createFolder(name);
+            } catch (IOException e) {
+                throw new RuntimeException(String.format("Cannot create folder %s", name), e);
+            }
             TreeItem<Object> newFolder = new TreeItem<>(name);
             collectionRoot.getChildren().add(newFolder);
             newFolderNameInput.setText("");

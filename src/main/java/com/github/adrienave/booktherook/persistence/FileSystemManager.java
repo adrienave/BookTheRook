@@ -5,11 +5,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class FileSystemManager {
+    private static final Path DATA_PATH = Path.of("./data");
 
     public void initializeDataDirectory() throws IOException {
-        Path dataFolder = Path.of("./data");
-        if (!Files.exists(dataFolder)) {
-            Files.createDirectory(dataFolder);
+        if (!Files.exists(DATA_PATH)) {
+            Files.createDirectory(DATA_PATH);
         }
+    }
+
+    public void createFolder(String name) throws IOException {
+        Files.createDirectory(DATA_PATH.resolve(Path.of(name)));
     }
 }
