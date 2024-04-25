@@ -8,6 +8,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.IOException;
 import java.net.URL;
@@ -50,7 +51,8 @@ public class CollectionController implements Initializable {
                 throw new RuntimeException(String.format("Cannot read content of %s directory", folderName), e);
             }
             gameNames.forEach(name -> {
-                TreeItem<Object> gameItem = new TreeItem<>(name);
+                String formattedGameName = FilenameUtils.removeExtension(name);
+                TreeItem<Object> gameItem = new TreeItem<>(formattedGameName);
                 folderItem.getChildren().add(gameItem);
             });
             game_index += gameNames.size();
@@ -58,7 +60,8 @@ public class CollectionController implements Initializable {
         });
         try {
             fileSystemManager.getFileNamesInFolder("").forEach(gameName -> {
-                TreeItem<Object> gameItem = new TreeItem<>(gameName);
+                String formattedGameName = FilenameUtils.removeExtension(gameName);
+                TreeItem<Object> gameItem = new TreeItem<>(formattedGameName);
                 collectionRoot.getChildren().add(gameItem);
                 game_index++;
             });

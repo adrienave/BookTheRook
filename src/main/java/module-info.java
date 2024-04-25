@@ -2,6 +2,7 @@ module com.github.adrienave.booktherook {
     requires javafx.controls;
     requires javafx.fxml;
     requires static lombok;
+    requires org.apache.commons.io;
 
 
     opens com.github.adrienave.booktherook to javafx.fxml;
