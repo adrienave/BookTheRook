@@ -1,6 +1,7 @@
 package com.github.adrienave.booktherook.javafx;
 
 import com.github.adrienave.booktherook.controller.CollectionController;
+import com.github.adrienave.booktherook.model.GameRecord;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeCell;
@@ -21,6 +22,7 @@ public class CollectionTreeCellImpl extends TreeCell<Object> {
             setContextMenu(null);
         } else {
             setContextMenu(generateContextMenu(item));
+            setOnMouseClicked(mouseEvent -> handleClick(item));
             setText(item.toString());
         }
     }
@@ -34,5 +36,16 @@ public class CollectionTreeCellImpl extends TreeCell<Object> {
             contextMenu.getItems().add(createNewGame);
         }
         return contextMenu;
+    }
+
+    private void handleClick(Object item) {
+        if (item instanceof GameRecord) {
+            String gameLocation = item.toString();
+            if (getTreeItem().getParent() != getTreeView().getRoot()) {
+                String folderName = (String) getTreeItem().getParent().getValue();
+                gameLocation = String.format("%s/%s", folderName, gameLocation);
+            }
+            collectionController.renderGame(gameLocation);
+        }
     }
 }

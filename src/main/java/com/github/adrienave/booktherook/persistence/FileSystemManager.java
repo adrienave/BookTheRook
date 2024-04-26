@@ -1,6 +1,9 @@
 package com.github.adrienave.booktherook.persistence;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -34,5 +37,10 @@ public class FileSystemManager {
         try (Stream<Path> stream = Files.list(DATA_PATH.resolve(folderName))) {
             return stream.filter(Files::isRegularFile).map(path -> path.getFileName().toString()).collect(Collectors.toList());
         }
+    }
+
+    public String loadGame(String gameLocation) throws IOException {
+        Path gamePath = DATA_PATH.resolve(Path.of(String.format("%s.pgn", gameLocation)));
+        return FileUtils.readFileToString(gamePath.toFile(), Charset.defaultCharset());
     }
 }

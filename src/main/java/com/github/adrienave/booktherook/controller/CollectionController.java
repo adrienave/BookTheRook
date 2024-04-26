@@ -5,6 +5,7 @@ import com.github.adrienave.booktherook.model.GameRecord;
 import com.github.adrienave.booktherook.persistence.FileSystemManager;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -23,6 +24,8 @@ public class CollectionController implements Initializable {
     private TreeView<Object> collectionTree;
     @FXML
     private TextField newFolderNameInput;
+    @FXML
+    private TextArea gameContentArea;
 
     private TreeItem<Object> collectionRoot;
     private FileSystemManager fileSystemManager;
@@ -101,5 +104,16 @@ public class CollectionController implements Initializable {
         } catch (IOException e) {
             throw new RuntimeException(String.format("Cannot create game file %s", gameName), e);
         }
+    }
+
+    public void renderGame(String gamePath) {
+        String gameContent;
+        try {
+            gameContent = fileSystemManager.loadGame(gamePath);
+        } catch (IOException e) {
+            throw new RuntimeException(String.format("Cannot read content of game file %s", gamePath), e);
+        }
+        gameContentArea.setText(gameContent);
+        gameContentArea.setVisible(true);
     }
 }
