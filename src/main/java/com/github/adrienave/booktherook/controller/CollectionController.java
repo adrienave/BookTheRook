@@ -30,6 +30,8 @@ public class CollectionController implements Initializable {
     private TreeItem<Object> collectionRoot;
     private FileSystemManager fileSystemManager;
 
+    private String selectedGameLocation;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         fileSystemManager = new FileSystemManager();
@@ -106,14 +108,24 @@ public class CollectionController implements Initializable {
         }
     }
 
-    public void renderGame(String gamePath) {
+    public void renderGame(String gameLocation) {
         String gameContent;
         try {
-            gameContent = fileSystemManager.loadGame(gamePath);
+            gameContent = fileSystemManager.loadGame(gameLocation);
         } catch (IOException e) {
-            throw new RuntimeException(String.format("Cannot read content of game file %s", gamePath), e);
+            throw new RuntimeException(String.format("Cannot read content of game file %s", gameLocation), e);
         }
+        selectedGameLocation = gameLocation;
         gameContentArea.setText(gameContent);
         gameContentArea.setVisible(true);
+    }
+
+    @FXML
+    public void saveGame() {
+        try {
+            fileSystemManager.saveGame(selectedGameLocation, gameContentArea.getText());
+        } catch (IOException e) {
+            throw new RuntimeException(String.format("Cannot save game into file %s", selectedGameLocation), e);
+        }
     }
 }
