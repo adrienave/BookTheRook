@@ -3,6 +3,7 @@ package com.github.adrienave.booktherook.controller;
 import com.github.adrienave.booktherook.javafx.CollectionTreeCellImpl;
 import com.github.adrienave.booktherook.model.GameRecord;
 import com.github.adrienave.booktherook.persistence.FileSystemManager;
+import com.github.adrienave.booktherook.service.GameService;
 import com.github.adrienave.booktherook.util.Piece;
 import com.github.adrienave.booktherook.util.Side;
 import javafx.fxml.FXML;
@@ -44,6 +45,7 @@ public class CollectionController implements Initializable {
 
     private String selectedGameLocation;
     private final StackPane[][] stackGrid = new StackPane[CHESSBOARD_ROWS][CHESSBOARD_COLUMNS];
+    private final GameService gameService = new GameService();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -206,15 +208,28 @@ public class CollectionController implements Initializable {
     }
 
     public void renderGame(String gameLocation) {
-        String gameContent;
-        try {
-            gameContent = fileSystemManager.loadGame(gameLocation);
-        } catch (IOException e) {
-            throw new RuntimeException(String.format("Cannot read content of game file %s", gameLocation), e);
-        }
         selectedGameLocation = gameLocation;
 
-        gameContentArea.setText(gameContent);
+        GameRecord gameRecord = new GameRecord("Error while parsing game");
+        try {
+            gameRecord = gameService.parsePGN(fileSystemManager.getGamePath(gameLocation));
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+
+        StringBuilder gameText = new StringBuilder(gameRecord.getName() + "\n");
+        int currentMoveIndex = 1;
+        boolean isWhiteMove = true;
+        for (String move: gameRecord.getMoves()) {
+            if (isWhiteMove) {
+                gameText.append(String.format("%d. %s", currentMoveIndex, move));
+            } else {
+                gameText.append(String.format(" %s \n", move));
+                currentMoveIndex++;
+            }
+            isWhiteMove = !isWhiteMove;
+        }
+        gameContentArea.setText(gameText.toString());
         gameContentArea.setVisible(true);
 
         setChessboardInitialPosition();

@@ -39,13 +39,13 @@ public class FileSystemManager {
         }
     }
 
-    public String loadGame(String gameLocation) throws IOException {
-        Path gamePath = DATA_PATH.resolve(Path.of(String.format("%s.pgn", gameLocation)));
-        return FileUtils.readFileToString(gamePath.toFile(), Charset.defaultCharset());
-    }
-
     public void saveGame(String gameLocation, String content) throws IOException {
         Path gamePath = DATA_PATH.resolve(Path.of(String.format("%s.pgn", gameLocation)));
         FileUtils.writeStringToFile(gamePath.toFile(), content, Charset.defaultCharset());
+    }
+
+    public String getGamePath(String gameLocation) {
+        Path gamePath = DATA_PATH.resolve(Path.of(String.format("%s.pgn", gameLocation)));
+        return gamePath.toString();
     }
 }
