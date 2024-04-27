@@ -1,3 +1,11 @@
 .folder-item {
     -fx-font-weight: bold;
 }
+
+.light-square {
+    -fx-background-color: #ffffdd;
+}
+
+.dark-square {
+    -fx-background-color: #86a666;
+}

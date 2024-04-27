@@ -9,12 +9,17 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
+
+import static com.github.adrienave.booktherook.util.Constants.CHESSBOARD_COLUMNS;
+import static com.github.adrienave.booktherook.util.Constants.CHESSBOARD_ROWS;
 
 public class CollectionController implements Initializable {
 
@@ -26,6 +31,8 @@ public class CollectionController implements Initializable {
     private TextField newFolderNameInput;
     @FXML
     private TextArea gameContentArea;
+    @FXML
+    private GridPane chessboard;
 
     private TreeItem<Object> collectionRoot;
     private FileSystemManager fileSystemManager;
@@ -40,11 +47,25 @@ public class CollectionController implements Initializable {
         } catch (IOException e) {
             throw new RuntimeException("Cannot create data directory", e);
         }
+
         collectionRoot = new TreeItem<>("Folders");
         loadDataToTree();
         collectionRoot.setExpanded(true);
         collectionTree.setRoot(collectionRoot);
         collectionTree.setCellFactory((TreeView<Object> tree) -> new CollectionTreeCellImpl(this));
+
+        initializeChessboard();
+    }
+
+    private void initializeChessboard() {
+        for (int row = 0; row < CHESSBOARD_ROWS; row++) {
+            for (int column = 0; column < CHESSBOARD_COLUMNS; column++) {
+                String squareClass = row % 2 == column % 2 ? "light-square" : "dark-square";
+                StackPane stackPane = new StackPane();
+                stackPane.getStyleClass().add(squareClass);
+                chessboard.add(stackPane, row, column);
+            }
+        }
     }
 
     private void loadDataToTree() {
@@ -118,6 +139,7 @@ public class CollectionController implements Initializable {
         selectedGameLocation = gameLocation;
         gameContentArea.setText(gameContent);
         gameContentArea.setVisible(true);
+        chessboard.setVisible(true);
     }
 
     @FXML
