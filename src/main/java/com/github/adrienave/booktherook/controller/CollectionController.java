@@ -277,9 +277,26 @@ public class CollectionController implements Initializable {
         ObservableList<Node> startPositionContent = stackGrid[CHESSBOARD_ROWS - 1 - startLocation.rowIndex()][startLocation.columnIndex()].getChildren();
         ObservableList<Node> endPositionContent = stackGrid[CHESSBOARD_ROWS - 1 - endLocation.rowIndex()][endLocation.columnIndex()].getChildren();
 
-        Node piece = startPositionContent.get(0);
-        startPositionContent.clear();
-        endPositionContent.clear();
-        endPositionContent.add(piece);
+        swapPieceSquare(startPositionContent, endPositionContent);
+
+        if (move.isCastle()) {
+            ObservableList<Node> originalRookPositionContent;
+            ObservableList<Node> newRookPositionContent;
+            if (move.isKingSideCastle()) {
+                originalRookPositionContent = stackGrid[CHESSBOARD_ROWS - 1 - startLocation.rowIndex()][CHESSBOARD_COLUMNS - 1].getChildren();
+                newRookPositionContent = stackGrid[CHESSBOARD_ROWS - 1 - startLocation.rowIndex()][endLocation.columnIndex() - 1].getChildren();
+            } else {
+                originalRookPositionContent = stackGrid[CHESSBOARD_ROWS - 1 - startLocation.rowIndex()][0].getChildren();
+                newRookPositionContent = stackGrid[CHESSBOARD_ROWS - 1 - startLocation.rowIndex()][endLocation.columnIndex() + 1].getChildren();
+            }
+            swapPieceSquare(originalRookPositionContent, newRookPositionContent);
+        }
+    }
+
+    private void swapPieceSquare(ObservableList<Node> sourceSquareContent, ObservableList<Node> destinationSquareContent) {
+        Node piece = sourceSquareContent.get(0);
+        sourceSquareContent.clear();
+        destinationSquareContent.clear();
+        destinationSquareContent.add(piece);
     }
 }

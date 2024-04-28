@@ -3,6 +3,8 @@ package com.github.adrienave.booktherook.model;
 import javafx.util.Pair;
 import lombok.Data;
 
+import java.util.Objects;
+
 @Data
 public class HalfMove {
     private final String algebraicNotation;
@@ -13,6 +15,18 @@ public class HalfMove {
         Square endPosition = new Square(letterToIndex(coordinateNotation.charAt(2)), Character.getNumericValue(coordinateNotation.charAt(3)) - 1);
 
         return new Pair<>(startPosition, endPosition);
+    }
+
+    public boolean isCastle() {
+        return isKingSideCastle() || isQueenSideCastle();
+    }
+
+    public boolean isKingSideCastle() {
+        return Objects.equals(algebraicNotation, "O-O");
+    }
+
+    public boolean isQueenSideCastle() {
+        return Objects.equals(algebraicNotation, "O-O-O");
     }
 
     private int letterToIndex(char letter) {
