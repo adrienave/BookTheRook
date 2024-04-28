@@ -26,6 +26,11 @@ public class BookTheRook extends Application {
                 }
             }
         });
+        scene.setOnScroll(scrollEvent -> {
+            if (scrollEvent.getDeltaY() != 0) {
+                controller.changeActiveMove(scrollEvent.getDeltaY() < 0);
+            }
+        });
         scene.getStylesheets().add(Objects.requireNonNull(this.getClass().getResource("collection-view.css")).toExternalForm());
         stage.setTitle("Book The Rook - Chess Game Collection Manager");
         stage.setScene(scene);

@@ -2,12 +2,16 @@ package com.github.adrienave.booktherook.controller;
 
 import com.github.adrienave.booktherook.javafx.CollectionTreeCellImpl;
 import com.github.adrienave.booktherook.model.GameRecord;
+import com.github.adrienave.booktherook.model.HalfMove;
+import com.github.adrienave.booktherook.model.Square;
 import com.github.adrienave.booktherook.persistence.FileSystemManager;
 import com.github.adrienave.booktherook.service.GameService;
 import com.github.adrienave.booktherook.util.Piece;
 import com.github.adrienave.booktherook.util.Side;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
@@ -15,6 +19,7 @@ import javafx.scene.control.TreeView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.util.Pair;
 import org.apache.commons.io.FilenameUtils;
 import org.kordamp.ikonli.javafx.FontIcon;
 
@@ -43,7 +48,7 @@ public class CollectionController implements Initializable {
     private TreeItem<Object> collectionRoot;
     private FileSystemManager fileSystemManager;
 
-    private String selectedGameLocation;
+    private GameRecord selectedGame;
     private final StackPane[][] stackGrid = new StackPane[CHESSBOARD_ROWS][CHESSBOARD_COLUMNS];
     private final GameService gameService = new GameService();
 
@@ -208,40 +213,73 @@ public class CollectionController implements Initializable {
     }
 
     public void renderGame(String gameLocation) {
-        selectedGameLocation = gameLocation;
-
         GameRecord gameRecord = new GameRecord("Error while parsing game");
         try {
             gameRecord = gameService.parsePGN(fileSystemManager.getGamePath(gameLocation));
         } catch (Exception e) {
             System.err.println(e);
         }
+        gameRecord.setLocation(gameLocation);
+        selectedGame = gameRecord;
 
-        StringBuilder gameText = new StringBuilder(gameRecord.getName() + "\n");
-        int currentMoveIndex = 1;
-        boolean isWhiteMove = true;
-        for (String move: gameRecord.getMoves()) {
-            if (isWhiteMove) {
-                gameText.append(String.format("%d. %s", currentMoveIndex, move));
-            } else {
-                gameText.append(String.format(" %s \n", move));
-                currentMoveIndex++;
-            }
-            isWhiteMove = !isWhiteMove;
-        }
-        gameContentArea.setText(gameText.toString());
+        String gameText = readRecord(gameRecord);
+        gameContentArea.setText(gameText);
         gameContentArea.setVisible(true);
 
         setChessboardInitialPosition();
         chessboard.setVisible(true);
     }
 
+    private static String readRecord(GameRecord gameRecord) {
+        StringBuilder gameText = new StringBuilder(gameRecord.getName() + "\n");
+        int currentMoveIndex = 1;
+        boolean isWhiteMove = true;
+        for (HalfMove move: gameRecord.getMoves()) {
+            if (isWhiteMove) {
+                gameText.append(String.format("%d. %s", currentMoveIndex, move.getAlgebraicNotation()));
+            } else {
+                gameText.append(String.format(" %s \n", move.getAlgebraicNotation()));
+                currentMoveIndex++;
+            }
+            isWhiteMove = !isWhiteMove;
+        }
+        return gameText.toString();
+    }
+
     @FXML
     public void saveGame() {
         try {
-            fileSystemManager.saveGame(selectedGameLocation, gameContentArea.getText());
+            fileSystemManager.saveGame(selectedGame.getLocation(), gameContentArea.getText());
         } catch (IOException e) {
-            throw new RuntimeException(String.format("Cannot save game into file %s", selectedGameLocation), e);
+            throw new RuntimeException(String.format("Cannot save game into file %s", selectedGame.getLocation()), e);
         }
+    }
+
+    public void changeActiveMove(boolean switchToNext) {
+        if (selectedGame == null) {
+            return;
+        }
+        if (!switchToNext) {
+            return;
+        }
+        if (selectedGame.getCurrentMoveIndex() < selectedGame.getMoves().size() - 1) {
+            selectedGame.setCurrentMoveIndex(selectedGame.getCurrentMoveIndex() + 1);
+        } else {
+            return;
+        }
+        playMove(selectedGame.getMoves().get(selectedGame.getCurrentMoveIndex()));
+    }
+
+    private void playMove(HalfMove move) {
+        Pair<Square, Square> boardLocations = move.convertToBoardLocation();
+        Square startLocation = boardLocations.getKey();
+        Square endLocation = boardLocations.getValue();
+        ObservableList<Node> startPositionContent = stackGrid[CHESSBOARD_ROWS - 1 - startLocation.rowIndex()][startLocation.columnIndex()].getChildren();
+        ObservableList<Node> endPositionContent = stackGrid[CHESSBOARD_ROWS - 1 - endLocation.rowIndex()][endLocation.columnIndex()].getChildren();
+
+        Node piece = startPositionContent.get(0);
+        startPositionContent.clear();
+        endPositionContent.clear();
+        endPositionContent.add(piece);
     }
 }

@@ -13,7 +13,16 @@ import java.util.List;
 @Data
 public class GameRecord {
     private final String name;
-    private List<String> moves = new ArrayList<>();
+    private List<HalfMove> moves = new ArrayList<>();
+    private int currentMoveIndex;
+    private String location;
+
+    public GameRecord(String name, List<HalfMove> moves) {
+        this.name = name;
+        this.moves = moves;
+        this.currentMoveIndex = -1;
+        this.location = null;
+    }
 
     @Override
     public String toString() {
