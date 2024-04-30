@@ -21,11 +21,13 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.util.Pair;
 import org.apache.commons.io.FilenameUtils;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import static com.github.adrienave.booktherook.util.Constants.CHESSBOARD_COLUMNS;
@@ -47,8 +49,6 @@ public class CollectionController implements Initializable {
 
     private TreeItem<Object> collectionRoot;
     private FileSystemManager fileSystemManager;
-
-    private GameRecord selectedGame;
     private final StackPane[][] stackGrid = new StackPane[CHESSBOARD_ROWS][CHESSBOARD_COLUMNS];
     private final GameService gameService = new GameService();
 
@@ -117,30 +117,12 @@ public class CollectionController implements Initializable {
     private FontIcon createVisualPiece(Piece pieceName, Side side) {
         FontIcon pieceIcon = new FontIcon(QUESTION);
         switch (pieceName) {
-            case PAWN: {
-                pieceIcon = new FontIcon(CHESS_PAWN);
-                break;
-            }
-            case ROOK: {
-                pieceIcon = new FontIcon(CHESS_ROOK);
-                break;
-            }
-            case KNIGHT: {
-                pieceIcon = new FontIcon(CHESS_KNIGHT);
-                break;
-            }
-            case BISHOP: {
-                pieceIcon = new FontIcon(CHESS_BISHOP);
-                break;
-            }
-            case QUEEN: {
-                pieceIcon = new FontIcon(CHESS_QUEEN);
-                break;
-            }
-            case KING: {
-                pieceIcon = new FontIcon(CHESS_KING);
-                break;
-            }
+            case PAWN -> pieceIcon = new FontIcon(CHESS_PAWN);
+            case ROOK -> pieceIcon = new FontIcon(CHESS_ROOK);
+            case KNIGHT -> pieceIcon = new FontIcon(CHESS_KNIGHT);
+            case BISHOP -> pieceIcon = new FontIcon(CHESS_BISHOP);
+            case QUEEN -> pieceIcon = new FontIcon(CHESS_QUEEN);
+            case KING -> pieceIcon = new FontIcon(CHESS_KING);
         }
         switch (side) {
             case BLACK -> pieceIcon.setIconColor(Color.BLACK);
@@ -149,6 +131,25 @@ public class CollectionController implements Initializable {
         pieceIcon.setIconSize(30);
         pieceIcon.setStroke(Color.BLACK);
         return pieceIcon;
+    }
+
+    private Piece convertNodeToPiece(Node node) {
+        if (!(node instanceof FontIcon pieceRepresentation)) {
+            throw new RuntimeException(String.format("Node %s is not a valid Piece representation", node));
+        }
+        if (!(pieceRepresentation.getIconCode() instanceof FontAwesomeSolid pieceIcon)) {
+            throw new RuntimeException(String.format("Node %s is not a valid Piece representation", node));
+        }
+        return switch (pieceIcon) {
+            case CHESS_PAWN -> Piece.PAWN;
+            case CHESS_ROOK -> Piece.ROOK;
+            case CHESS_KNIGHT -> Piece.KNIGHT;
+            case CHESS_BISHOP -> Piece.BISHOP;
+            case CHESS_QUEEN -> Piece.QUEEN;
+            case CHESS_KING -> Piece.KING;
+            default ->
+                    throw new RuntimeException(String.format("Icon %s is not a valid Piece representation", pieceRepresentation.getIconLiteral()));
+        };
     }
 
     private void loadDataToTree() {
@@ -220,7 +221,7 @@ public class CollectionController implements Initializable {
             System.err.println(e);
         }
         gameRecord.setLocation(gameLocation);
-        selectedGame = gameRecord;
+        gameService.setActiveGame(gameRecord);
 
         String gameText = readRecord(gameRecord);
         gameContentArea.setText(gameText);
@@ -249,35 +250,42 @@ public class CollectionController implements Initializable {
     @FXML
     public void saveGame() {
         try {
-            fileSystemManager.saveGame(selectedGame.getLocation(), gameContentArea.getText());
+            fileSystemManager.saveGame(gameService.getActiveGame().getLocation(), gameContentArea.getText());
         } catch (IOException e) {
-            throw new RuntimeException(String.format("Cannot save game into file %s", selectedGame.getLocation()), e);
+            throw new RuntimeException(String.format("Cannot save game into file %s", gameService.getActiveGame().getLocation()), e);
         }
     }
 
     public void changeActiveMove(boolean switchToNext) {
-        if (selectedGame == null) {
+        if (gameService.getActiveGame() == null) {
             return;
         }
-        if (!switchToNext) {
+
+        Optional<HalfMove> moveToProceed = gameService.updateActiveMove(switchToNext);
+        if (moveToProceed.isEmpty()) {
             return;
         }
-        if (selectedGame.getCurrentMoveIndex() < selectedGame.getMoves().size() - 1) {
-            selectedGame.setCurrentMoveIndex(selectedGame.getCurrentMoveIndex() + 1);
-        } else {
-            return;
-        }
-        playMove(selectedGame.getMoves().get(selectedGame.getCurrentMoveIndex()));
+        proceedMove(moveToProceed.get(), switchToNext);
     }
 
-    private void playMove(HalfMove move) {
+    private void proceedMove(HalfMove move, boolean isPlayed) {
         Pair<Square, Square> boardLocations = move.convertToBoardLocation();
         Square startLocation = boardLocations.getKey();
         Square endLocation = boardLocations.getValue();
         ObservableList<Node> startPositionContent = stackGrid[CHESSBOARD_ROWS - 1 - startLocation.rowIndex()][startLocation.columnIndex()].getChildren();
         ObservableList<Node> endPositionContent = stackGrid[CHESSBOARD_ROWS - 1 - endLocation.rowIndex()][endLocation.columnIndex()].getChildren();
 
-        swapPieceSquare(startPositionContent, endPositionContent);
+        if (isPlayed) {
+            if (!endPositionContent.isEmpty()) {
+                move.setTakenPiece(convertNodeToPiece(endPositionContent.get(0)));
+            }
+            swapPieceSquare(startPositionContent, endPositionContent);
+        } else {
+            swapPieceSquare(endPositionContent, startPositionContent);
+            if (move.getTakenPiece() != null) {
+                endPositionContent.add(createVisualPiece(move.getTakenPiece(), move.getColor().reverseSide()));
+            }
+        }
 
         if (move.isCastle()) {
             ObservableList<Node> originalRookPositionContent;
@@ -289,7 +297,11 @@ public class CollectionController implements Initializable {
                 originalRookPositionContent = stackGrid[CHESSBOARD_ROWS - 1 - startLocation.rowIndex()][0].getChildren();
                 newRookPositionContent = stackGrid[CHESSBOARD_ROWS - 1 - startLocation.rowIndex()][endLocation.columnIndex() + 1].getChildren();
             }
-            swapPieceSquare(originalRookPositionContent, newRookPositionContent);
+            if (isPlayed) {
+                swapPieceSquare(originalRookPositionContent, newRookPositionContent);
+            } else {
+                swapPieceSquare(newRookPositionContent, originalRookPositionContent);
+            }
         }
     }
 

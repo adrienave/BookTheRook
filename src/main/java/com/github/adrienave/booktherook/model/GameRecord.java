@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -13,7 +12,7 @@ import java.util.List;
 @Data
 public class GameRecord {
     private final String name;
-    private List<HalfMove> moves = new ArrayList<>();
+    private List<HalfMove> moves;
     private int currentMoveIndex;
     private String location;
 
@@ -28,4 +27,5 @@ public class GameRecord {
     public String toString() {
         return this.name;
     }
+
 }
