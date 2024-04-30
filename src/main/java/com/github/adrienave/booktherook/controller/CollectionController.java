@@ -30,12 +30,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-import static com.github.adrienave.booktherook.util.Constants.CHESSBOARD_COLUMNS;
-import static com.github.adrienave.booktherook.util.Constants.CHESSBOARD_ROWS;
+import static com.github.adrienave.booktherook.util.Constants.CHESSBOARD_FILE_COUNT;
+import static com.github.adrienave.booktherook.util.Constants.CHESSBOARD_RANK_COUNT;
 import static org.kordamp.ikonli.fontawesome5.FontAwesomeSolid.*;
 
 public class CollectionController implements Initializable {
 
+    private static final List<Piece> FIRST_RANK_PIECE_SEQUENCE = List.of(
+            Piece.ROOK, Piece.KNIGHT, Piece.BISHOP, Piece.QUEEN, Piece.KING, Piece.BISHOP, Piece.KNIGHT, Piece.ROOK);
     private static int game_index = 1;
 
     @FXML
@@ -49,7 +51,7 @@ public class CollectionController implements Initializable {
 
     private TreeItem<Object> collectionRoot;
     private FileSystemManager fileSystemManager;
-    private final StackPane[][] stackGrid = new StackPane[CHESSBOARD_ROWS][CHESSBOARD_COLUMNS];
+    private final StackPane[][] stackGrid = new StackPane[CHESSBOARD_RANK_COUNT][CHESSBOARD_FILE_COUNT];
     private final GameService gameService = new GameService();
 
     @Override
@@ -71,46 +73,32 @@ public class CollectionController implements Initializable {
     }
 
     private void initializeChessboard() {
-        for (int row = 0; row < CHESSBOARD_ROWS; row++) {
-            for (int column = 0; column < CHESSBOARD_COLUMNS; column++) {
-                String squareClass = row % 2 == column % 2 ? "light-square" : "dark-square";
+        for (int rank = 0; rank < CHESSBOARD_RANK_COUNT; rank++) {
+            for (int file = 0; file < CHESSBOARD_FILE_COUNT; file++) {
+                String squareClass = rank % 2 == file % 2 ? "light-square" : "dark-square";
                 StackPane stackPane = new StackPane();
                 stackPane.getStyleClass().add(squareClass);
-                chessboard.add(stackPane, column, row);
-                stackGrid[row][column] = stackPane;
+                chessboard.add(stackPane, file, rank);
+                stackGrid[rank][file] = stackPane;
             }
         }
     }
 
     private void setChessboardInitialPosition() {
-        for (int row = 0; row < CHESSBOARD_ROWS; row++) {
-            for (int column = 0; column < CHESSBOARD_COLUMNS; column++) {
-                stackGrid[row][column].getChildren().clear();
+        for (int rank = 0; rank < CHESSBOARD_RANK_COUNT; rank++) {
+            for (int file = 0; file < CHESSBOARD_FILE_COUNT; file++) {
+                stackGrid[rank][file].getChildren().clear();
             }
         }
 
-        stackGrid[0][0].getChildren().add(createVisualPiece(Piece.ROOK, Side.BLACK));
-        stackGrid[0][1].getChildren().add(createVisualPiece(Piece.KNIGHT, Side.BLACK));
-        stackGrid[0][2].getChildren().add(createVisualPiece(Piece.BISHOP, Side.BLACK));
-        stackGrid[0][3].getChildren().add(createVisualPiece(Piece.QUEEN, Side.BLACK));
-        stackGrid[0][4].getChildren().add(createVisualPiece(Piece.KING, Side.BLACK));
-        stackGrid[0][5].getChildren().add(createVisualPiece(Piece.BISHOP, Side.BLACK));
-        stackGrid[0][6].getChildren().add(createVisualPiece(Piece.KNIGHT, Side.BLACK));
-        stackGrid[0][7].getChildren().add(createVisualPiece(Piece.ROOK, Side.BLACK));
-        for (int column = 0; column < CHESSBOARD_COLUMNS; column++) {
-            stackGrid[1][column].getChildren().add(createVisualPiece(Piece.PAWN, Side.BLACK));
+        for (int file = 0; file < CHESSBOARD_FILE_COUNT; file++) {
+            stackGrid[0][file].getChildren().add(createVisualPiece(FIRST_RANK_PIECE_SEQUENCE.get(file), Side.BLACK));
+            stackGrid[1][file].getChildren().add(createVisualPiece(Piece.PAWN, Side.BLACK));
         }
 
-        stackGrid[7][0].getChildren().add(createVisualPiece(Piece.ROOK, Side.WHITE));
-        stackGrid[7][1].getChildren().add(createVisualPiece(Piece.KNIGHT, Side.WHITE));
-        stackGrid[7][2].getChildren().add(createVisualPiece(Piece.BISHOP, Side.WHITE));
-        stackGrid[7][3].getChildren().add(createVisualPiece(Piece.QUEEN, Side.WHITE));
-        stackGrid[7][4].getChildren().add(createVisualPiece(Piece.KING, Side.WHITE));
-        stackGrid[7][5].getChildren().add(createVisualPiece(Piece.BISHOP, Side.WHITE));
-        stackGrid[7][6].getChildren().add(createVisualPiece(Piece.KNIGHT, Side.WHITE));
-        stackGrid[7][7].getChildren().add(createVisualPiece(Piece.ROOK, Side.WHITE));
-        for (int column = 0; column < CHESSBOARD_COLUMNS; column++) {
-            stackGrid[6][column].getChildren().add(createVisualPiece(Piece.PAWN, Side.WHITE));
+        for (int file = 0; file < CHESSBOARD_FILE_COUNT; file++) {
+            stackGrid[7][file].getChildren().add(createVisualPiece(FIRST_RANK_PIECE_SEQUENCE.get(file), Side.WHITE));
+            stackGrid[6][file].getChildren().add(createVisualPiece(Piece.PAWN, Side.WHITE));
         }
     }
 
@@ -218,6 +206,7 @@ public class CollectionController implements Initializable {
         try {
             gameRecord = gameService.parsePGN(fileSystemManager.getGamePath(gameLocation));
         } catch (Exception e) {
+            // TODO: render error message when game cannot be parsed (#14)
             System.err.println(e);
         }
         gameRecord.setLocation(gameLocation);
@@ -235,7 +224,7 @@ public class CollectionController implements Initializable {
         StringBuilder gameText = new StringBuilder(gameRecord.getName() + "\n");
         int currentMoveIndex = 1;
         boolean isWhiteMove = true;
-        for (HalfMove move: gameRecord.getMoves()) {
+        for (HalfMove move : gameRecord.getMoves()) {
             if (isWhiteMove) {
                 gameText.append(String.format("%d. %s", currentMoveIndex, move.getAlgebraicNotation()));
             } else {
@@ -272,8 +261,8 @@ public class CollectionController implements Initializable {
         Pair<Square, Square> boardLocations = move.convertToBoardLocation();
         Square startLocation = boardLocations.getKey();
         Square endLocation = boardLocations.getValue();
-        ObservableList<Node> startPositionContent = stackGrid[CHESSBOARD_ROWS - 1 - startLocation.rowIndex()][startLocation.columnIndex()].getChildren();
-        ObservableList<Node> endPositionContent = stackGrid[CHESSBOARD_ROWS - 1 - endLocation.rowIndex()][endLocation.columnIndex()].getChildren();
+        ObservableList<Node> startPositionContent = stackGrid[CHESSBOARD_RANK_COUNT - 1 - startLocation.rank()][startLocation.file()].getChildren();
+        ObservableList<Node> endPositionContent = stackGrid[CHESSBOARD_RANK_COUNT - 1 - endLocation.rank()][endLocation.file()].getChildren();
 
         if (isPlayed) {
             if (!endPositionContent.isEmpty()) {
@@ -291,11 +280,11 @@ public class CollectionController implements Initializable {
             ObservableList<Node> originalRookPositionContent;
             ObservableList<Node> newRookPositionContent;
             if (move.isKingSideCastle()) {
-                originalRookPositionContent = stackGrid[CHESSBOARD_ROWS - 1 - startLocation.rowIndex()][CHESSBOARD_COLUMNS - 1].getChildren();
-                newRookPositionContent = stackGrid[CHESSBOARD_ROWS - 1 - startLocation.rowIndex()][endLocation.columnIndex() - 1].getChildren();
+                originalRookPositionContent = stackGrid[CHESSBOARD_RANK_COUNT - 1 - startLocation.rank()][CHESSBOARD_FILE_COUNT - 1].getChildren();
+                newRookPositionContent = stackGrid[CHESSBOARD_RANK_COUNT - 1 - startLocation.rank()][endLocation.file() - 1].getChildren();
             } else {
-                originalRookPositionContent = stackGrid[CHESSBOARD_ROWS - 1 - startLocation.rowIndex()][0].getChildren();
-                newRookPositionContent = stackGrid[CHESSBOARD_ROWS - 1 - startLocation.rowIndex()][endLocation.columnIndex() + 1].getChildren();
+                originalRookPositionContent = stackGrid[CHESSBOARD_RANK_COUNT - 1 - startLocation.rank()][0].getChildren();
+                newRookPositionContent = stackGrid[CHESSBOARD_RANK_COUNT - 1 - startLocation.rank()][endLocation.file() + 1].getChildren();
             }
             if (isPlayed) {
                 swapPieceSquare(originalRookPositionContent, newRookPositionContent);
