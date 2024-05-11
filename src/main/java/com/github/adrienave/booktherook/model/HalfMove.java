@@ -13,6 +13,7 @@ public class HalfMove {
     private final String coordinateNotation;
     private final Side color;
     private Piece takenPiece;
+    private boolean isEnPassant = false;
 
     public Pair<Square, Square> convertToBoardLocation() {
         Square startPosition = new Square(letterToIndex(coordinateNotation.charAt(0)), Character.getNumericValue(coordinateNotation.charAt(1)) - 1);
@@ -32,6 +33,8 @@ public class HalfMove {
     public boolean isQueenSideCastle() {
         return Objects.equals(algebraicNotation, "O-O-O");
     }
+
+    public boolean isTake() { return algebraicNotation.contains("x"); }
 
     private int letterToIndex(char letter) {
         return letter - 'a';

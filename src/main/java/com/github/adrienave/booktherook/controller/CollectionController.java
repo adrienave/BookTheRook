@@ -263,16 +263,23 @@ public class CollectionController implements Initializable {
         Square endLocation = boardLocations.getValue();
         ObservableList<Node> startPositionContent = stackGrid[CHESSBOARD_RANK_COUNT - 1 - startLocation.rank()][startLocation.file()].getChildren();
         ObservableList<Node> endPositionContent = stackGrid[CHESSBOARD_RANK_COUNT - 1 - endLocation.rank()][endLocation.file()].getChildren();
+        ObservableList<Node> enPassantPositionContent = stackGrid[CHESSBOARD_RANK_COUNT - 1 - startLocation.rank()][endLocation.file()].getChildren();
 
         if (isPlayed) {
             if (!endPositionContent.isEmpty()) {
                 move.setTakenPiece(convertNodeToPiece(endPositionContent.get(0)));
+            } else if (move.isTake()) {
+                // Move is taking a piece not located on the end position : must be *en passant*
+                move.setTakenPiece(convertNodeToPiece(enPassantPositionContent.get(0)));
+                move.setEnPassant(true);
+                enPassantPositionContent.clear();
             }
             swapPieceSquare(startPositionContent, endPositionContent);
         } else {
             swapPieceSquare(endPositionContent, startPositionContent);
             if (move.getTakenPiece() != null) {
-                endPositionContent.add(createVisualPiece(move.getTakenPiece(), move.getColor().reverseSide()));
+                ObservableList<Node> takenPositionContent = move.isEnPassant() ? enPassantPositionContent : endPositionContent;
+                takenPositionContent.add(createVisualPiece(move.getTakenPiece(), move.getColor().reverseSide()));
             }
         }
 
