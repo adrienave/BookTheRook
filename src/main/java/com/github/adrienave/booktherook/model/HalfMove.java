@@ -12,6 +12,7 @@ public class HalfMove {
     private final String algebraicNotation;
     private final String coordinateNotation;
     private final Side color;
+    private final Piece promotionPiece;
     private Piece takenPiece;
     private boolean isEnPassant = false;
 

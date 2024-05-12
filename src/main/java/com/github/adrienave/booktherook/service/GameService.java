@@ -2,7 +2,9 @@ package com.github.adrienave.booktherook.service;
 
 import com.github.adrienave.booktherook.model.GameRecord;
 import com.github.adrienave.booktherook.model.HalfMove;
+import com.github.adrienave.booktherook.util.Piece;
 import com.github.adrienave.booktherook.util.Side;
+import com.github.bhlangonijr.chesslib.PieceType;
 import com.github.bhlangonijr.chesslib.game.Game;
 import com.github.bhlangonijr.chesslib.move.Move;
 import com.github.bhlangonijr.chesslib.pgn.PgnHolder;
@@ -28,7 +30,12 @@ public class GameService {
         boolean isWhiteTurn = true;
         List<HalfMove> moves = new ArrayList<>();
         for (Move move : game.getHalfMoves()) {
-            moves.add(new HalfMove(move.getSan(), move.toString(), isWhiteTurn ? Side.WHITE : Side.BLACK));
+            Piece promotionPiece = null;
+            PieceType maybePromotionPieceType = move.getPromotion().getPieceType();
+            if (maybePromotionPieceType != null) {
+                promotionPiece = convertChesslibPieceToPiece(maybePromotionPieceType);
+            }
+            moves.add(new HalfMove(move.getSan(), move.toString(), isWhiteTurn ? Side.WHITE : Side.BLACK, promotionPiece));
             isWhiteTurn = !isWhiteTurn;
         }
 
@@ -45,5 +52,17 @@ public class GameService {
             return Optional.of(activeMove);
         }
         return Optional.empty();
+    }
+
+    private Piece convertChesslibPieceToPiece(PieceType chesslibType) {
+        return switch (chesslibType) {
+            case PAWN -> Piece.PAWN;
+            case ROOK -> Piece.ROOK;
+            case KNIGHT -> Piece.KNIGHT;
+            case BISHOP -> Piece.BISHOP;
+            case QUEEN -> Piece.QUEEN;
+            case KING -> Piece.KING;
+            case NONE -> null;
+        };
     }
 }

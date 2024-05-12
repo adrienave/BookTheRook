@@ -275,11 +275,19 @@ public class CollectionController implements Initializable {
                 enPassantPositionContent.clear();
             }
             swapPieceSquare(startPositionContent, endPositionContent);
+            if (move.getPromotionPiece() != null) {
+                endPositionContent.clear();
+                endPositionContent.add(createVisualPiece(move.getPromotionPiece(), move.getColor()));
+            }
         } else {
             swapPieceSquare(endPositionContent, startPositionContent);
             if (move.getTakenPiece() != null) {
                 ObservableList<Node> takenPositionContent = move.isEnPassant() ? enPassantPositionContent : endPositionContent;
                 takenPositionContent.add(createVisualPiece(move.getTakenPiece(), move.getColor().reverseSide()));
+            }
+            if (move.getPromotionPiece() != null) {
+                startPositionContent.clear();
+                startPositionContent.add(createVisualPiece(Piece.PAWN, move.getColor()));
             }
         }
 
