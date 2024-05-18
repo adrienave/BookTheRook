@@ -5,8 +5,6 @@ import com.github.adrienave.booktherook.util.Side;
 import javafx.util.Pair;
 import lombok.Data;
 
-import java.util.Objects;
-
 @Data
 public class HalfMove {
     private final String algebraicNotation;
@@ -24,15 +22,15 @@ public class HalfMove {
     }
 
     public boolean isCastle() {
-        return isKingSideCastle() || isQueenSideCastle();
+        return isQueenSideCastle() || isKingSideCastle();
     }
 
     public boolean isKingSideCastle() {
-        return Objects.equals(algebraicNotation, "O-O");
+        return algebraicNotation.contains("O-O") && !isQueenSideCastle();
     }
 
     public boolean isQueenSideCastle() {
-        return Objects.equals(algebraicNotation, "O-O-O");
+        return algebraicNotation.contains("O-O-O");
     }
 
     public boolean isTake() { return algebraicNotation.contains("x"); }
