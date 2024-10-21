@@ -80,6 +80,95 @@ public class CollectionController implements Initializable {
         initializeChessboard();
     }
 
+    @FXML
+    public void createFolder() {
+        String name = newFolderNameInput.getText();
+        if (!name.isBlank()) {
+            try {
+                fileSystemManager.createFolder(name);
+            } catch (IOException e) {
+                if (e instanceof FileAlreadyExistsException) {
+                    inputErrorMessage.setText("Folder with such name already exists.");
+                    newFolderNameInput.getStyleClass().add("invalid");
+                    return;
+                }
+                throw new RuntimeException(String.format("Cannot create folder %s", name), e);
+            }
+            TreeItem<Object> newFolder = new TreeItem<>(name);
+            collectionRoot.getChildren().add(newFolder);
+            newFolderNameInput.setText("");
+        }
+    }
+
+    @FXML
+    public void saveGame() {
+        try {
+            fileSystemManager.saveGame(gameService.getActiveGame().getLocation(), gameContentArea.getText());
+        } catch (IOException e) {
+            throw new RuntimeException(String.format("Cannot save game into file %s", gameService.getActiveGame().getLocation()), e);
+        }
+    }
+
+    public void createGameInFolder(TreeItem<Object> folderItem) {
+        String gameName = "Game " + game_index++;
+        TreeItem<Object> game = new TreeItem<>(new GameRecord(gameName));
+        folderItem.getChildren().add(game);
+        folderItem.setExpanded(true);
+        String folderName = folderItem.getParent() != null ? (String) folderItem.getValue() : "";
+        try {
+            fileSystemManager.createGame(gameName, folderName);
+        } catch (IOException e) {
+            throw new RuntimeException(String.format("Cannot create game file %s", gameName), e);
+        }
+    }
+
+    public void renderGame(String gameLocation) {
+        GameRecord gameRecord = new GameRecord("Error while parsing game");
+        try {
+            gameRecord = gameService.parsePGN(fileSystemManager.getGamePath(gameLocation));
+        } catch (Exception e) {
+            // TODO: render error message when game cannot be parsed (#14)
+            System.err.println(e);
+        }
+        gameRecord.setLocation(gameLocation);
+        gameService.setActiveGame(gameRecord);
+
+        String gameText = readRecord(gameRecord);
+        gameContentArea.setText(gameText);
+        gameContentArea.setVisible(true);
+
+        setChessboardInitialPosition();
+        chessboard.setVisible(true);
+    }
+
+    public void changeActiveMove(boolean switchToNext) {
+        if (gameService.getActiveGame() == null) {
+            return;
+        }
+
+        Optional<HalfMove> moveToProceed = gameService.updateActiveMove(switchToNext);
+        if (moveToProceed.isEmpty()) {
+            return;
+        }
+        proceedMove(moveToProceed.get(), switchToNext);
+    }
+
+    private static String readRecord(GameRecord gameRecord) {
+        StringBuilder gameText = new StringBuilder(gameRecord.getName() + "\n");
+        int currentMoveIndex = 1;
+        boolean isWhiteMove = true;
+        for (HalfMove move : gameRecord.getMoves()) {
+            if (isWhiteMove) {
+                gameText.append(String.format("%d. %s", currentMoveIndex, move.getAlgebraicNotation()));
+            } else {
+                gameText.append(String.format(" %s \n", move.getAlgebraicNotation()));
+                currentMoveIndex++;
+            }
+            isWhiteMove = !isWhiteMove;
+        }
+        return gameText.toString();
+    }
+
     private void initializeChessboard() {
         for (int rank = 0; rank < CHESSBOARD_RANK_COUNT; rank++) {
             for (int file = 0; file < CHESSBOARD_FILE_COUNT; file++) {
@@ -179,95 +268,6 @@ public class CollectionController implements Initializable {
         } catch (IOException e) {
             throw new RuntimeException("Cannot read content of data directory", e);
         }
-    }
-
-    @FXML
-    public void createFolder() {
-        String name = newFolderNameInput.getText();
-        if (!name.isBlank()) {
-            try {
-                fileSystemManager.createFolder(name);
-            } catch (IOException e) {
-                if (e instanceof FileAlreadyExistsException) {
-                    inputErrorMessage.setText("Folder with such name already exists.");
-                    newFolderNameInput.getStyleClass().add("invalid");
-                    return;
-                }
-                throw new RuntimeException(String.format("Cannot create folder %s", name), e);
-            }
-            TreeItem<Object> newFolder = new TreeItem<>(name);
-            collectionRoot.getChildren().add(newFolder);
-            newFolderNameInput.setText("");
-        }
-    }
-
-    public void createGameInFolder(TreeItem<Object> folderItem) {
-        String gameName = "Game " + game_index++;
-        TreeItem<Object> game = new TreeItem<>(new GameRecord(gameName));
-        folderItem.getChildren().add(game);
-        folderItem.setExpanded(true);
-        String folderName = folderItem.getParent() != null ? (String) folderItem.getValue() : "";
-        try {
-            fileSystemManager.createGame(gameName, folderName);
-        } catch (IOException e) {
-            throw new RuntimeException(String.format("Cannot create game file %s", gameName), e);
-        }
-    }
-
-    public void renderGame(String gameLocation) {
-        GameRecord gameRecord = new GameRecord("Error while parsing game");
-        try {
-            gameRecord = gameService.parsePGN(fileSystemManager.getGamePath(gameLocation));
-        } catch (Exception e) {
-            // TODO: render error message when game cannot be parsed (#14)
-            System.err.println(e);
-        }
-        gameRecord.setLocation(gameLocation);
-        gameService.setActiveGame(gameRecord);
-
-        String gameText = readRecord(gameRecord);
-        gameContentArea.setText(gameText);
-        gameContentArea.setVisible(true);
-
-        setChessboardInitialPosition();
-        chessboard.setVisible(true);
-    }
-
-    private static String readRecord(GameRecord gameRecord) {
-        StringBuilder gameText = new StringBuilder(gameRecord.getName() + "\n");
-        int currentMoveIndex = 1;
-        boolean isWhiteMove = true;
-        for (HalfMove move : gameRecord.getMoves()) {
-            if (isWhiteMove) {
-                gameText.append(String.format("%d. %s", currentMoveIndex, move.getAlgebraicNotation()));
-            } else {
-                gameText.append(String.format(" %s \n", move.getAlgebraicNotation()));
-                currentMoveIndex++;
-            }
-            isWhiteMove = !isWhiteMove;
-        }
-        return gameText.toString();
-    }
-
-    @FXML
-    public void saveGame() {
-        try {
-            fileSystemManager.saveGame(gameService.getActiveGame().getLocation(), gameContentArea.getText());
-        } catch (IOException e) {
-            throw new RuntimeException(String.format("Cannot save game into file %s", gameService.getActiveGame().getLocation()), e);
-        }
-    }
-
-    public void changeActiveMove(boolean switchToNext) {
-        if (gameService.getActiveGame() == null) {
-            return;
-        }
-
-        Optional<HalfMove> moveToProceed = gameService.updateActiveMove(switchToNext);
-        if (moveToProceed.isEmpty()) {
-            return;
-        }
-        proceedMove(moveToProceed.get(), switchToNext);
     }
 
     private void proceedMove(HalfMove move, boolean isPlayed) {
