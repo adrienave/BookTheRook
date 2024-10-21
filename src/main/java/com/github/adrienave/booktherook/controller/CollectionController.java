@@ -12,10 +12,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -26,7 +23,9 @@ import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -42,6 +41,8 @@ public class CollectionController implements Initializable {
 
     @FXML
     private TreeView<Object> collectionTree;
+    @FXML
+    private Label inputErrorMessage;
     @FXML
     private TextField newFolderNameInput;
     @FXML
@@ -68,6 +69,13 @@ public class CollectionController implements Initializable {
         collectionRoot.setExpanded(true);
         collectionTree.setRoot(collectionRoot);
         collectionTree.setCellFactory((TreeView<Object> tree) -> new CollectionTreeCellImpl(this));
+
+        newFolderNameInput.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!Objects.equals(oldValue, newValue)) {
+                inputErrorMessage.setText("");
+                newFolderNameInput.getStyleClass().remove("invalid");
+            }
+        });
 
         initializeChessboard();
     }
@@ -180,6 +188,11 @@ public class CollectionController implements Initializable {
             try {
                 fileSystemManager.createFolder(name);
             } catch (IOException e) {
+                if (e instanceof FileAlreadyExistsException) {
+                    inputErrorMessage.setText("Folder with such name already exists.");
+                    newFolderNameInput.getStyleClass().add("invalid");
+                    return;
+                }
                 throw new RuntimeException(String.format("Cannot create folder %s", name), e);
             }
             TreeItem<Object> newFolder = new TreeItem<>(name);

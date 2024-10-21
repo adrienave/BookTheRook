@@ -9,3 +9,8 @@
 .dark-square {
     -fx-background-color: #86a666;
 }
+
+.invalid {
+ -fx-border-color: red;
+ -fx-border-width: 2px;
+}
