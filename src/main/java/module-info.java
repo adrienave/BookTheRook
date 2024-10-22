@@ -6,6 +6,7 @@ module com.github.adrienave.booktherook {
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.ikonli.fontawesome5;
     requires static chesslib;
+    requires org.fxmisc.richtext;
 
 
     opens com.github.adrienave.booktherook to javafx.fxml;

@@ -11,6 +11,10 @@
 }
 
 .invalid {
- -fx-border-color: red;
- -fx-border-width: 2px;
+    -fx-border-color: red;
+    -fx-border-width: 2px;
+}
+
+.currentMove {
+    -fx-font-weight: bold;
 }

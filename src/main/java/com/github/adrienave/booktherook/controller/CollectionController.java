@@ -12,12 +12,16 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.util.Pair;
 import org.apache.commons.io.FilenameUtils;
+import org.fxmisc.richtext.InlineCssTextArea;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 
@@ -46,7 +50,7 @@ public class CollectionController implements Initializable {
     @FXML
     private TextField newFolderNameInput;
     @FXML
-    private TextArea gameContentArea;
+    private InlineCssTextArea gameContentArea;
     @FXML
     private GridPane chessboard;
 
@@ -134,7 +138,7 @@ public class CollectionController implements Initializable {
         gameService.setActiveGame(gameRecord);
 
         String gameText = readRecord(gameRecord);
-        gameContentArea.setText(gameText);
+        gameContentArea.replaceText(gameText);
         gameContentArea.setVisible(true);
 
         setChessboardInitialPosition();
@@ -150,7 +154,9 @@ public class CollectionController implements Initializable {
         if (moveToProceed.isEmpty()) {
             return;
         }
-        proceedMove(moveToProceed.get(), switchToNext);
+        HalfMove move = moveToProceed.get();
+        proceedMove(move, switchToNext);
+        highlightActiveMove(switchToNext ? move.getColor() : move.getColor().reverseSide());
     }
 
     private static String readRecord(GameRecord gameRecord) {
@@ -320,6 +326,24 @@ public class CollectionController implements Initializable {
                 swapPieceSquare(newRookPositionContent, originalRookPositionContent);
             }
         }
+    }
+
+    private void highlightActiveMove(Side activeSide) {
+        int activeLineIndex = (gameService.getActiveGame().getCurrentMoveIndex() / 2) + 1;
+        String activeLine = gameContentArea.getText(activeLineIndex);
+        List<String> lineParts = List.of(activeLine.split(" "));
+        int moveStart, moveEnd;
+        if (activeSide == Side.WHITE) {
+                moveStart = lineParts.get(0).length() + 1;
+            moveEnd = moveStart + lineParts.get(1).length() + 1;
+        } else {
+            moveStart = lineParts.get(0).length() + 1 + lineParts.get(1).length() + 1;
+            moveEnd = moveStart + lineParts.get(2).length() + 1;
+        }
+
+        gameContentArea.clearStyle(0, gameContentArea.getLength());
+        gameContentArea.setStyle(activeLineIndex, 0, lineParts.get(0).length(), "-fx-font-weight: bold;");
+        gameContentArea.setStyle(activeLineIndex, moveStart, moveEnd, "-fx-font-weight: bold;");
     }
 
     private void swapPieceSquare(ObservableList<Node> sourceSquareContent, ObservableList<Node> destinationSquareContent) {
