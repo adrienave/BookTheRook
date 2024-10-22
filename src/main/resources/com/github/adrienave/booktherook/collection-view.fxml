@@ -22,11 +22,11 @@
     <VirtualizedScrollPane layoutX="384.0" layoutY="110.0">
         <!--suppress JavaFxDefaultTag (default tag still need to be defined despite IntelliJ claim)-->
         <content>
-            <InlineCssTextArea fx:id="gameContentArea" prefHeight="280.0" prefWidth="600.0"
-                           visible="false" wrapText="true"/>
+            <InlineCssTextArea fx:id="gameContentArea" editable="false" prefHeight="280.0" prefWidth="600.0" visible="false" wrapText="true" />
         </content>
     </VirtualizedScrollPane>
-    <Button layoutX="384.0" layoutY="77.0" mnemonicParsing="false" onAction="#saveGame" text="Save" />
+    <Button disable="true" layoutX="518.0" layoutY="77.0" mnemonicParsing="false" onAction="#saveGame" text="Save" />
+    <Button layoutX="384.0" layoutY="77.0" mnemonicParsing="false" text="Switch to Edit Mode" />
     <GridPane fx:id="chessboard" gridLinesVisible="true" layoutX="496.0" layoutY="410.0" prefHeight="320.0" prefWidth="320.0" styleClass="chessboard" visible="false">
         <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
