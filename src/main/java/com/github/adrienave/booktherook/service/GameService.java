@@ -9,38 +9,23 @@ import com.github.bhlangonijr.chesslib.game.Game;
 import com.github.bhlangonijr.chesslib.move.Move;
 import com.github.bhlangonijr.chesslib.move.MoveList;
 import com.github.bhlangonijr.chesslib.pgn.PgnHolder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@NoArgsConstructor
-@Getter
-@Setter
+@Data
 public class GameService {
     private GameRecord activeGame;
 
-    public GameRecord parsePGN(String gameLocation) throws Exception {
+    public static GameRecord parsePGN(String gameLocation) throws Exception {
         PgnHolder pgn = new PgnHolder(gameLocation);
         pgn.loadPgn();
         Game game = pgn.getGames().get(0);
+        List<HalfMove> moves = chesslibMovesToHalfMoves(game.getHalfMoves());
 
-        boolean isWhiteTurn = true;
-        List<HalfMove> moves = new ArrayList<>();
-        for (Move move : game.getHalfMoves()) {
-            Piece promotionPiece = null;
-            PieceType maybePromotionPieceType = move.getPromotion().getPieceType();
-            if (maybePromotionPieceType != null) {
-                promotionPiece = convertChesslibPieceToPiece(maybePromotionPieceType);
-            }
-            moves.add(new HalfMove(move.getSan(), move.toString(), isWhiteTurn ? Side.WHITE : Side.BLACK, promotionPiece));
-            isWhiteTurn = !isWhiteTurn;
-        }
-
-        return new GameRecord(String.format("%s - %s (%s)", game.getWhitePlayer(), game.getBlackPlayer(), game.getResult().getDescription()), moves);
+        return GameRecord.builder().name(String.format("%s - %s (%s)", game.getWhitePlayer(), game.getBlackPlayer(), game.getResult().getDescription())).moves(moves).build();
     }
 
     public static String toSAN(String gameContentInput) {
@@ -51,20 +36,23 @@ public class GameService {
         MoveList chesslibMoves = new MoveList();
         chesslibMoves.loadFromSan(gameMovesSAN);
 
+        activeGame.setMoves(chesslibMovesToHalfMoves(chesslibMoves));
+        activeGame.setCurrentMoveIndex(-1);
+    }
+
+    private static List<HalfMove> chesslibMovesToHalfMoves(MoveList game) {
         boolean isWhiteTurn = true;
-        List<HalfMove> updatedMoves = new ArrayList<>();
-        for (Move move : chesslibMoves) {
+        List<HalfMove> moves = new ArrayList<>();
+        for (Move move : game) {
             Piece promotionPiece = null;
             PieceType maybePromotionPieceType = move.getPromotion().getPieceType();
             if (maybePromotionPieceType != null) {
                 promotionPiece = convertChesslibPieceToPiece(maybePromotionPieceType);
             }
-            updatedMoves.add(new HalfMove(move.getSan(), move.toString(), isWhiteTurn ? Side.WHITE : Side.BLACK, promotionPiece));
+            moves.add(new HalfMove(move.getSan(), move.toString(), isWhiteTurn ? Side.WHITE : Side.BLACK, promotionPiece));
             isWhiteTurn = !isWhiteTurn;
         }
-
-        activeGame.setMoves(updatedMoves);
-        activeGame.setCurrentMoveIndex(-1);
+        return moves;
     }
 
     public Optional<HalfMove> updateActiveMove(boolean switchToNext) {
@@ -79,7 +67,7 @@ public class GameService {
         return Optional.empty();
     }
 
-    private Piece convertChesslibPieceToPiece(PieceType chesslibType) {
+    private static Piece convertChesslibPieceToPiece(PieceType chesslibType) {
         return switch (chesslibType) {
             case PAWN -> Piece.PAWN;
             case ROOK -> Piece.ROOK;

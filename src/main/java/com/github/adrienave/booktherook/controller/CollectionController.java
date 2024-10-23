@@ -119,7 +119,7 @@ public class CollectionController implements Initializable {
 
     public void createGameInFolder(TreeItem<Object> folderItem) {
         String gameName = "Game " + game_index++;
-        TreeItem<Object> game = new TreeItem<>(new GameRecord(gameName));
+        TreeItem<Object> game = new TreeItem<>(GameRecord.builder().name(gameName).build());
         folderItem.getChildren().add(game);
         folderItem.setExpanded(true);
         String folderName = folderItem.getParent() != null ? (String) folderItem.getValue() : "";
@@ -131,9 +131,9 @@ public class CollectionController implements Initializable {
     }
 
     public void renderGame(String gameLocation) {
-        GameRecord gameRecord = new GameRecord("Error while parsing game");
+        GameRecord gameRecord = GameRecord.builder().name("Error while parsing game").build();
         try {
-            gameRecord = gameService.parsePGN(fileSystemManager.getGamePath(gameLocation));
+            gameRecord = GameService.parsePGN(fileSystemManager.getGamePath(gameLocation));
         } catch (Exception e) {
             // TODO: render error message when game cannot be parsed (#14)
             System.err.println(e);
@@ -281,7 +281,7 @@ public class CollectionController implements Initializable {
             try {
                 fileSystemManager.getFileNamesInFolder(folderName).forEach(name -> {
                     String formattedGameName = FilenameUtils.removeExtension(name);
-                    TreeItem<Object> gameItem = new TreeItem<>(new GameRecord(formattedGameName));
+                    TreeItem<Object> gameItem = new TreeItem<>(GameRecord.builder().name(formattedGameName).build());
                     folderItem.getChildren().add(gameItem);
                     game_index++;
                 });
@@ -293,7 +293,7 @@ public class CollectionController implements Initializable {
         try {
             fileSystemManager.getFileNamesInFolder("").forEach(gameName -> {
                 String formattedGameName = FilenameUtils.removeExtension(gameName);
-                TreeItem<Object> gameItem = new TreeItem<>(new GameRecord(formattedGameName));
+                TreeItem<Object> gameItem = new TreeItem<>(GameRecord.builder().name(formattedGameName).build());
                 collectionRoot.getChildren().add(gameItem);
                 game_index++;
             });
