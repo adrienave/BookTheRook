@@ -49,7 +49,7 @@ public class GameService {
             if (maybePromotionPieceType != null) {
                 promotionPiece = convertChesslibPieceToPiece(maybePromotionPieceType);
             }
-            moves.add(new HalfMove(move.getSan(), move.toString(), isWhiteTurn ? Side.WHITE : Side.BLACK, promotionPiece));
+            moves.add(HalfMove.builder().algebraicNotation(move.getSan()).coordinateNotation(move.toString()).color(isWhiteTurn ? Side.WHITE : Side.BLACK).promotionPiece(promotionPiece).build());
             isWhiteTurn = !isWhiteTurn;
         }
         return moves;

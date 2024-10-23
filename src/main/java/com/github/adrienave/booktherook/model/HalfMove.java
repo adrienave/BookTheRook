@@ -3,15 +3,18 @@ package com.github.adrienave.booktherook.model;
 import com.github.adrienave.booktherook.util.Piece;
 import com.github.adrienave.booktherook.util.Side;
 import javafx.util.Pair;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class HalfMove {
     private final String algebraicNotation;
     private final String coordinateNotation;
     private final Side color;
     private final Piece promotionPiece;
     private Piece takenPiece;
+    @Builder.Default
     private boolean isEnPassant = false;
 
     public Pair<Square, Square> convertToBoardLocation() {
@@ -35,7 +38,7 @@ public class HalfMove {
 
     public boolean isTake() { return algebraicNotation.contains("x"); }
 
-    private int letterToIndex(char letter) {
+    private static int letterToIndex(char letter) {
         return letter - 'a';
     }
 }
