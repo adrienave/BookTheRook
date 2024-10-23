@@ -12,10 +12,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -50,12 +47,19 @@ public class CollectionController implements Initializable {
     @FXML
     private TextField newFolderNameInput;
     @FXML
+    private Button editModeButton;
+    @FXML
+    private Button playModeButton;
+    @FXML
+    private Button saveButton;
+    @FXML
     private InlineCssTextArea gameContentArea;
     @FXML
     private GridPane chessboard;
 
     private TreeItem<Object> collectionRoot;
     private FileSystemManager fileSystemManager;
+    private boolean isPlayMode;
     private final StackPane[][] stackGrid = new StackPane[CHESSBOARD_RANK_COUNT][CHESSBOARD_FILE_COUNT];
     private final GameService gameService = new GameService();
 
@@ -143,10 +147,11 @@ public class CollectionController implements Initializable {
 
         setChessboardInitialPosition();
         chessboard.setVisible(true);
+        isPlayMode = true;
     }
 
     public void changeActiveMove(boolean switchToNext) {
-        if (gameService.getActiveGame() == null) {
+        if (gameService.getActiveGame() == null || !isPlayMode) {
             return;
         }
 
@@ -157,6 +162,27 @@ public class CollectionController implements Initializable {
         HalfMove move = moveToProceed.get();
         proceedMove(move, switchToNext);
         highlightActiveMove(switchToNext ? move.getColor() : move.getColor().reverseSide());
+    }
+
+    public void switchToEditMode() {
+        editModeButton.setVisible(false);
+        playModeButton.setVisible(true);
+        saveButton.setDisable(false);
+        gameContentArea.setEditable(true);
+        gameContentArea.clearStyle(0, gameContentArea.getLength());
+        isPlayMode = false;
+    }
+
+    public void switchToPlayMode() {
+        editModeButton.setVisible(true);
+        playModeButton.setVisible(false);
+        saveButton.setDisable(true);
+        gameContentArea.setEditable(false);
+        String updatedGameContent = gameContentArea.getText();
+        String updatedGameMoves = updatedGameContent.substring(updatedGameContent.indexOf('\n') + 1);
+        gameService.setActiveGameUpdatedMoves(GameService.toSAN(updatedGameMoves));
+        setChessboardInitialPosition();
+        isPlayMode = true;
     }
 
     private static String readRecord(GameRecord gameRecord) {

@@ -25,8 +25,9 @@
             <InlineCssTextArea fx:id="gameContentArea" editable="false" prefHeight="280.0" prefWidth="600.0" visible="false" wrapText="true" />
         </content>
     </VirtualizedScrollPane>
-    <Button disable="true" layoutX="518.0" layoutY="77.0" mnemonicParsing="false" onAction="#saveGame" text="Save" />
-    <Button layoutX="384.0" layoutY="77.0" mnemonicParsing="false" text="Switch to Edit Mode" />
+    <Button fx:id="saveButton" disable="true" layoutX="518.0" layoutY="77.0" mnemonicParsing="false" onAction="#saveGame" text="Save" />
+    <Button fx:id="editModeButton" layoutX="384.0" layoutY="77.0" mnemonicParsing="false" onAction="#switchToEditMode" text="Switch to Edit Mode" />
+   <Button fx:id="playModeButton" layoutX="384.0" layoutY="77.0" mnemonicParsing="false" onAction="#switchToPlayMode" text="Switch to Play Mode" visible="false" />
     <GridPane fx:id="chessboard" gridLinesVisible="true" layoutX="496.0" layoutY="410.0" prefHeight="320.0" prefWidth="320.0" styleClass="chessboard" visible="false">
         <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />

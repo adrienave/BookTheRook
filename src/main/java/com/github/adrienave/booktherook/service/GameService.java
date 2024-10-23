@@ -7,6 +7,7 @@ import com.github.adrienave.booktherook.util.Side;
 import com.github.bhlangonijr.chesslib.PieceType;
 import com.github.bhlangonijr.chesslib.game.Game;
 import com.github.bhlangonijr.chesslib.move.Move;
+import com.github.bhlangonijr.chesslib.move.MoveList;
 import com.github.bhlangonijr.chesslib.pgn.PgnHolder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,6 +41,30 @@ public class GameService {
         }
 
         return new GameRecord(String.format("%s - %s (%s)", game.getWhitePlayer(), game.getBlackPlayer(), game.getResult().getDescription()), moves);
+    }
+
+    public static String toSAN(String gameContentInput) {
+        return gameContentInput.replace("\n", " ");
+    }
+
+    public void setActiveGameUpdatedMoves(String gameMovesSAN) {
+        MoveList chesslibMoves = new MoveList();
+        chesslibMoves.loadFromSan(gameMovesSAN);
+
+        boolean isWhiteTurn = true;
+        List<HalfMove> updatedMoves = new ArrayList<>();
+        for (Move move : chesslibMoves) {
+            Piece promotionPiece = null;
+            PieceType maybePromotionPieceType = move.getPromotion().getPieceType();
+            if (maybePromotionPieceType != null) {
+                promotionPiece = convertChesslibPieceToPiece(maybePromotionPieceType);
+            }
+            updatedMoves.add(new HalfMove(move.getSan(), move.toString(), isWhiteTurn ? Side.WHITE : Side.BLACK, promotionPiece));
+            isWhiteTurn = !isWhiteTurn;
+        }
+
+        activeGame.setMoves(updatedMoves);
+        activeGame.setCurrentMoveIndex(-1);
     }
 
     public Optional<HalfMove> updateActiveMove(boolean switchToNext) {
