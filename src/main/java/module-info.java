@@ -14,7 +14,7 @@ module com.github.adrienave.booktherook {
     exports com.github.adrienave.booktherook.model;
     opens com.github.adrienave.booktherook.model to javafx.fxml;
     exports com.github.adrienave.booktherook.controller;
-    opens com.github.adrienave.booktherook.controller to javafx.fxml;
+    opens com.github.adrienave.booktherook.controller to javafx.fxml, org.testfx.junit5;
     exports com.github.adrienave.booktherook.javafx;
     opens com.github.adrienave.booktherook.javafx to javafx.fxml;
 }
