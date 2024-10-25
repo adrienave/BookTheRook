@@ -279,27 +279,22 @@ public class CollectionController implements Initializable {
         }
         existingFolderNames.forEach(folderName -> {
             TreeItem<Object> folderItem = new TreeItem<>(folderName);
-            try {
-                fileSystemManager.getFileNamesInFolder(folderName).forEach(name -> {
-                    String formattedGameName = FilenameUtils.removeExtension(name);
-                    TreeItem<Object> gameItem = new TreeItem<>(GameRecord.builder().name(formattedGameName).build());
-                    folderItem.getChildren().add(gameItem);
-                    game_index++;
-                });
-            } catch (IOException e) {
-                throw new RuntimeException(String.format("Cannot read content of %s directory", folderName), e);
-            }
+            loadGameNamesFromFolderToFolderTree(folderName, folderItem);
             collectionRoot.getChildren().add(folderItem);
         });
+        loadGameNamesFromFolderToFolderTree("", collectionRoot);
+    }
+
+    private void loadGameNamesFromFolderToFolderTree(String folderName, TreeItem<Object> folderItem) {
         try {
-            fileSystemManager.getFileNamesInFolder("").forEach(gameName -> {
+            fileSystemManager.getFileNamesInFolder(folderName).forEach(gameName -> {
                 String formattedGameName = FilenameUtils.removeExtension(gameName);
                 TreeItem<Object> gameItem = new TreeItem<>(GameRecord.builder().name(formattedGameName).build());
-                collectionRoot.getChildren().add(gameItem);
+                folderItem.getChildren().add(gameItem);
                 game_index++;
             });
         } catch (IOException e) {
-            throw new RuntimeException("Cannot read content of data directory", e);
+            throw new RuntimeException(String.format("Cannot read content of %s directory", folderName.isBlank() ? "data" : folderName), e);
         }
     }
 
