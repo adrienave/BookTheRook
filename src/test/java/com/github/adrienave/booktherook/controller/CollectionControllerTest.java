@@ -1,15 +1,13 @@
 package com.github.adrienave.booktherook.controller;
 
 import com.github.adrienave.booktherook.BookTheRook;
+import com.github.adrienave.booktherook.model.GameRecord;
 import com.github.adrienave.booktherook.persistence.FileSystemManager;
 import com.github.adrienave.booktherook.service.GameService;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -100,5 +98,51 @@ class CollectionControllerTest {
         Assertions.assertThat(root.getChildren()).isEmpty();
         Label label = robot.lookup("#inputErrorMessage").queryAs(Label.class);
         Assertions.assertThat(label).isVisible().hasText("Folder with such name already exists.");
+    }
+
+    @Test
+    void save_active_game_to_its_location_when_game_is_selected() throws IOException {
+        GameRecord activeGame = GameRecord.builder().build();
+        when(gameService.getActiveGame()).thenReturn(activeGame);
+
+        collectionController.saveGame();
+
+        verify(fileSystemManager).saveGame(any(), any());
+    }
+
+    @Test
+    void enable_save_button_when_switch_to_edit_mode(FxRobot robot) {
+        Platform.runLater(collectionController::switchToEditMode);
+
+        Button saveButton = robot.lookup("#saveButton").queryAs(Button.class);
+        Assertions.assertThat(saveButton).isVisible().isEnabled();
+    }
+
+    @Test
+    void disable_save_button_when_switch_to_play_mode(FxRobot robot) {
+        Platform.runLater(collectionController::switchToPlayMode);
+
+        Button saveButton = robot.lookup("#saveButton").queryAs(Button.class);
+        Assertions.assertThat(saveButton).isVisible().isDisabled();
+    }
+
+    @Test
+    void toggle_play_edit_buttons_when_switch_to_edit_mode(FxRobot robot) {
+        Platform.runLater(collectionController::switchToEditMode);
+
+        Button editModeButton = robot.lookup("#editModeButton").queryAs(Button.class);
+        Assertions.assertThat(editModeButton).isInvisible();
+        Button playModeButton = robot.lookup("#playModeButton").queryAs(Button.class);
+        Assertions.assertThat(playModeButton).isVisible();
+    }
+
+    @Test
+    void toggle_play_edit_buttons_when_switch_to_play_mode(FxRobot robot) {
+        Platform.runLater(collectionController::switchToPlayMode);
+
+        Button editModeButton = robot.lookup("#editModeButton").queryAs(Button.class);
+        Assertions.assertThat(editModeButton).isVisible();
+        Button playModeButton = robot.lookup("#playModeButton").queryAs(Button.class);
+        Assertions.assertThat(playModeButton).isInvisible();
     }
 }
