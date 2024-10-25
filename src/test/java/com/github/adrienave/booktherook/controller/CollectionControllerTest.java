@@ -9,6 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxRobot;
@@ -18,6 +19,9 @@ import org.testfx.framework.junit5.Start;
 
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Semaphore;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -30,6 +34,7 @@ class CollectionControllerTest {
     private final CollectionController collectionController = new CollectionController(fileSystemManager, gameService);
 
     @Start
+    @SuppressWarnings("unused")
     void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(BookTheRook.class.getResource("collection-view.fxml"));
         fxmlLoader.setController(collectionController);
@@ -41,9 +46,45 @@ class CollectionControllerTest {
     @Test
     @SuppressWarnings("unchecked")
     void creates_expanded_collection_structure_root_when_initializing(FxRobot robot) {
-        TreeItem<String> root = robot.lookup("#collectionTree").queryAs(TreeView.class).getRoot();
-        Assertions.assertThat(root.getValue()).isEqualTo("Folders");
-        Assertions.assertThat(root.isExpanded()).isTrue();
+        TreeItem<String> collectionTree = robot.lookup("#collectionTree").queryAs(TreeView.class).getRoot();
+        Assertions.assertThat(collectionTree.getValue()).isEqualTo("Folders");
+        Assertions.assertThat(collectionTree.isExpanded()).isTrue();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void load_into_tree_structure_top_level_games_when_initializing(FxRobot robot) throws IOException {
+        String firstGameName = "First_game";
+        String secondGameName = "Second_game";
+        when(fileSystemManager.getFileNamesInFolder("")).thenReturn(List.of(firstGameName + ".pgn", secondGameName + ".pgn"));
+
+        runLaterButNotTooLate(() -> collectionController.initialize(null, null));
+
+        TreeItem<Object> collectionTree = robot.lookup("#collectionTree").queryAs(TreeView.class).getRoot();
+        Assertions.assertThat(collectionTree.getChildren())
+               .hasSize(2)
+               .extracting(TreeItem::getValue)
+               .extracting(Object::toString)
+               .containsExactlyInAnyOrder(firstGameName, secondGameName);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void load_into_tree_structure_sub_folder_games_when_initializing(FxRobot robot) throws IOException {
+        List<String> folderNames = List.of("Folder A", "Folder B");
+        String gameInFirstFolder = "First_game_in_folder_A";
+        String gameInSecondFolder = "Second_game_in_folder_B";
+        String otherGameInSecondFolder = "Third_game_in_folder_B";
+        when(fileSystemManager.getFolderNames()).thenReturn(folderNames);
+        when(fileSystemManager.getFileNamesInFolder(folderNames.get(0))).thenReturn(List.of(gameInFirstFolder + ".pgn"));
+        when(fileSystemManager.getFileNamesInFolder(folderNames.get(1))).thenReturn(List.of(gameInSecondFolder + ".pgn", otherGameInSecondFolder + ".pgn"));
+
+        runLaterButNotTooLate(() -> collectionController.initialize(null, null));
+
+        TreeItem<Object> collectionTree = robot.lookup("#collectionTree").queryAs(TreeView.class).getRoot();
+        Assertions.assertThat(collectionTree.getChildren()).hasSize(2);
+        List<TreeItem<Object>> subFolderGames = collectionTree.getChildren().stream().map((treeItem) -> (List<TreeItem<Object>>) treeItem.getChildren()).flatMap(Collection::stream).toList();
+        Assertions.assertThat(subFolderGames).hasSize(3).extracting(TreeItem::getValue).extracting(Object::toString).containsExactlyInAnyOrder(gameInFirstFolder, gameInSecondFolder, otherGameInSecondFolder);
     }
 
     @Test
@@ -92,7 +133,7 @@ class CollectionControllerTest {
         textField.setText(folderName);
         doThrow(FileAlreadyExistsException.class).when(fileSystemManager).createFolder(any());
 
-        Platform.runLater(collectionController::createFolder);
+        runLaterButNotTooLate(collectionController::createFolder);
 
         TreeItem<String> root = robot.lookup("#collectionTree").queryAs(TreeView.class).getRoot();
         Assertions.assertThat(root.getChildren()).isEmpty();
@@ -112,7 +153,7 @@ class CollectionControllerTest {
 
     @Test
     void enable_save_button_when_switch_to_edit_mode(FxRobot robot) {
-        Platform.runLater(collectionController::switchToEditMode);
+        runLaterButNotTooLate(collectionController::switchToEditMode);
 
         Button saveButton = robot.lookup("#saveButton").queryAs(Button.class);
         Assertions.assertThat(saveButton).isVisible().isEnabled();
@@ -120,7 +161,7 @@ class CollectionControllerTest {
 
     @Test
     void disable_save_button_when_switch_to_play_mode(FxRobot robot) {
-        Platform.runLater(collectionController::switchToPlayMode);
+        runLaterButNotTooLate(collectionController::switchToPlayMode);
 
         Button saveButton = robot.lookup("#saveButton").queryAs(Button.class);
         Assertions.assertThat(saveButton).isVisible().isDisabled();
@@ -128,7 +169,7 @@ class CollectionControllerTest {
 
     @Test
     void toggle_play_edit_buttons_when_switch_to_edit_mode(FxRobot robot) {
-        Platform.runLater(collectionController::switchToEditMode);
+        runLaterButNotTooLate(collectionController::switchToEditMode);
 
         Button editModeButton = robot.lookup("#editModeButton").queryAs(Button.class);
         Assertions.assertThat(editModeButton).isInvisible();
@@ -138,11 +179,21 @@ class CollectionControllerTest {
 
     @Test
     void toggle_play_edit_buttons_when_switch_to_play_mode(FxRobot robot) {
-        Platform.runLater(collectionController::switchToPlayMode);
+        runLaterButNotTooLate(collectionController::switchToPlayMode);
 
         Button editModeButton = robot.lookup("#editModeButton").queryAs(Button.class);
         Assertions.assertThat(editModeButton).isVisible();
         Button playModeButton = robot.lookup("#playModeButton").queryAs(Button.class);
         Assertions.assertThat(playModeButton).isInvisible();
+    }
+
+    @SneakyThrows
+    private static void runLaterButNotTooLate(Runnable codeToExecute) {
+        Semaphore semaphore = new Semaphore(0);
+        Platform.runLater(() -> {
+            codeToExecute.run();
+            semaphore.release();
+        });
+        semaphore.acquire();
     }
 }
