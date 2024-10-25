@@ -1,6 +1,8 @@
 package com.github.adrienave.booktherook;
 
 import com.github.adrienave.booktherook.controller.CollectionController;
+import com.github.adrienave.booktherook.persistence.FileSystemManager;
+import com.github.adrienave.booktherook.service.GameService;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -13,8 +15,9 @@ public class BookTheRook extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("collection-view.fxml"));
+        CollectionController controller = new CollectionController(new FileSystemManager(), new GameService());
+        fxmlLoader.setController(controller);
         Scene scene = new Scene(fxmlLoader.load());
-        CollectionController controller = fxmlLoader.getController();
         scene.setOnKeyPressed(keyEvent -> {
             switch (keyEvent.getCode()) {
                 case ENTER: {

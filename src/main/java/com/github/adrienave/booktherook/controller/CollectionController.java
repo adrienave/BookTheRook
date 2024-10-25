@@ -17,6 +17,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.util.Pair;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.fxmisc.richtext.InlineCssTextArea;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
@@ -34,6 +35,7 @@ import static com.github.adrienave.booktherook.util.Constants.CHESSBOARD_FILE_CO
 import static com.github.adrienave.booktherook.util.Constants.CHESSBOARD_RANK_COUNT;
 import static org.kordamp.ikonli.fontawesome5.FontAwesomeSolid.*;
 
+@RequiredArgsConstructor
 public class CollectionController implements Initializable {
 
     private static final List<Piece> FIRST_RANK_PIECE_SEQUENCE = List.of(
@@ -57,15 +59,14 @@ public class CollectionController implements Initializable {
     @FXML
     private GridPane chessboard;
 
+    private final FileSystemManager fileSystemManager;
+    private final GameService gameService;
     private TreeItem<Object> collectionRoot;
-    private FileSystemManager fileSystemManager;
     private boolean isPlayMode;
     private final StackPane[][] stackGrid = new StackPane[CHESSBOARD_RANK_COUNT][CHESSBOARD_FILE_COUNT];
-    private final GameService gameService = new GameService();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        fileSystemManager = new FileSystemManager();
         try {
             fileSystemManager.initializeDataDirectory();
         } catch (IOException e) {
