@@ -14,6 +14,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Pair;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +53,14 @@ public class CollectionController implements Initializable {
     private Button playModeButton;
     @FXML
     private Button saveButton;
+    @FXML
+    private Pane gamePanel;
+    @FXML
+    private TextField whitePlayerNameField;
+    @FXML
+    private TextField blackPlayerNameField;
+    @FXML
+    private TextField resultField;
     @FXML
     private InlineCssTextArea gameContentArea;
     @FXML
@@ -140,12 +149,13 @@ public class CollectionController implements Initializable {
         gameRecord.setLocation(gameLocation);
         gameService.setActiveGame(gameRecord);
 
-        String gameText = gameRecord.toFormattedString();
-        gameContentArea.replaceText(gameText);
-        gameContentArea.setVisible(true);
-
+        gamePanel.setVisible(true);
+        whitePlayerNameField.setText(gameRecord.getWhitePlayerName());
+        blackPlayerNameField.setText(gameRecord.getBlackPlayerName());
+        resultField.setText(gameRecord.getResult());
+        gameContentArea.replaceText(gameRecord.toFormattedString());
         setChessboardInitialPosition();
-        chessboard.setVisible(true);
+
         isPlayMode = true;
     }
 
@@ -167,6 +177,9 @@ public class CollectionController implements Initializable {
         editModeButton.setVisible(false);
         playModeButton.setVisible(true);
         saveButton.setDisable(false);
+        whitePlayerNameField.setEditable(true);
+        blackPlayerNameField.setEditable(true);
+        resultField.setEditable(true);
         gameContentArea.setEditable(true);
         gameContentArea.clearStyle(0, gameContentArea.getLength());
         isPlayMode = false;
@@ -176,6 +189,9 @@ public class CollectionController implements Initializable {
         editModeButton.setVisible(true);
         playModeButton.setVisible(false);
         saveButton.setDisable(true);
+        whitePlayerNameField.setEditable(false);
+        blackPlayerNameField.setEditable(false);
+        resultField.setEditable(false);
         gameContentArea.setEditable(false);
         String updatedGameContent = gameContentArea.getText();
         String updatedGameMoves = updatedGameContent.substring(updatedGameContent.indexOf('\n') + 1);
@@ -295,12 +311,12 @@ public class CollectionController implements Initializable {
     }
 
     private void highlightActiveMove(Side activeSide) {
-        int activeLineIndex = (gameService.getActiveGame().getCurrentMoveIndex() / 2) + 1;
+        int activeLineIndex = gameService.getActiveGame().getCurrentMoveIndex() / 2;
         String activeLine = gameContentArea.getText(activeLineIndex);
         List<String> lineParts = List.of(activeLine.split(" "));
         int moveStart, moveEnd;
         if (activeSide == Side.WHITE) {
-                moveStart = lineParts.get(0).length() + 1;
+            moveStart = lineParts.get(0).length() + 1;
             moveEnd = moveStart + lineParts.get(1).length() + 1;
         } else {
             moveStart = lineParts.get(0).length() + 1 + lineParts.get(1).length() + 1;

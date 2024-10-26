@@ -25,7 +25,7 @@ public class GameService {
         Game game = pgn.getGames().get(0);
         List<HalfMove> moves = chesslibMovesToHalfMoves(game.getHalfMoves());
 
-        return GameRecord.builder().name(String.format("%s - %s (%s)", game.getWhitePlayer(), game.getBlackPlayer(), game.getResult().getDescription())).moves(moves).build();
+        return GameRecord.builder().whitePlayerName(game.getWhitePlayer().getName()).blackPlayerName(game.getBlackPlayer().getName()).result(game.getResult().getDescription()).moves(moves).build();
     }
 
     public static String toSAN(String gameContentInput) {

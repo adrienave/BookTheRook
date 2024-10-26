@@ -11,6 +11,9 @@ import java.util.List;
 @Builder
 public class GameRecord {
     private final String name;
+    private final String whitePlayerName;
+    private final String blackPlayerName;
+    private final String result;
     @Builder.Default
     private List<HalfMove> moves = new ArrayList<>();
     @Builder.Default
@@ -23,7 +26,7 @@ public class GameRecord {
     }
 
     public String toFormattedString() {
-        StringBuilder gameText = new StringBuilder(this.getName() + "\n");
+        StringBuilder gameText = new StringBuilder();
         int currentMoveIndex = 1;
         boolean isWhiteMove = true;
         for (HalfMove move : this.getMoves()) {

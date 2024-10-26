@@ -19,35 +19,45 @@
             <Tooltip text="Create Folder" />
         </tooltip>
     </Button>
-    <VirtualizedScrollPane layoutX="384.0" layoutY="110.0">
-        <!--suppress JavaFxDefaultTag (default tag still need to be defined despite IntelliJ claim)-->
-        <content>
-            <InlineCssTextArea fx:id="gameContentArea" editable="false" prefHeight="280.0" prefWidth="600.0" visible="false" wrapText="true" />
-        </content>
-    </VirtualizedScrollPane>
-    <Button fx:id="saveButton" disable="true" layoutX="518.0" layoutY="77.0" mnemonicParsing="false" onAction="#saveGame" text="Save" />
-    <Button fx:id="editModeButton" layoutX="384.0" layoutY="77.0" mnemonicParsing="false" onAction="#switchToEditMode" text="Switch to Edit Mode" />
-   <Button fx:id="playModeButton" layoutX="384.0" layoutY="77.0" mnemonicParsing="false" onAction="#switchToPlayMode" text="Switch to Play Mode" visible="false" />
-    <GridPane fx:id="chessboard" gridLinesVisible="true" layoutX="496.0" layoutY="410.0" prefHeight="320.0" prefWidth="320.0" styleClass="chessboard" visible="false">
-        <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
-        </columnConstraints>
-        <rowConstraints>
-            <RowConstraints maxHeight="40.0" minHeight="40.0" prefHeight="40.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="40.0" minHeight="40.0" prefHeight="40.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="40.0" minHeight="40.0" prefHeight="40.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="40.0" minHeight="40.0" prefHeight="40.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="40.0" minHeight="40.0" prefHeight="40.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="40.0" minHeight="40.0" prefHeight="40.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="40.0" minHeight="40.0" prefHeight="40.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="40.0" minHeight="40.0" prefHeight="40.0" vgrow="SOMETIMES" />
-        </rowConstraints>
-    </GridPane>
+    <Pane fx:id="gamePanel" layoutX="359.0" layoutY="111.0" prefHeight="614.0" prefWidth="580.0" visible="false">
+      <children>
+          <Label text="White Player" />
+          <Label layoutX="164.0" text="Black Player" />
+          <Label layoutX="322.0" text="Result" />
+          <TextField fx:id="whitePlayerNameField" editable="false" layoutY="16.0" />
+          <TextField fx:id="blackPlayerNameField" editable="false" layoutX="164.0" layoutY="16.0" />
+          <TextField fx:id="resultField" editable="false" layoutX="322.0" layoutY="16.0" prefHeight="26.0" prefWidth="55.0" />
+          <VirtualizedScrollPane layoutY="51.0" prefHeight="237.0" prefWidth="600.0">
+              <!--suppress JavaFxDefaultTag (default tag still need to be defined despite IntelliJ claim)-->
+              <content>
+                  <InlineCssTextArea fx:id="gameContentArea" editable="false" prefHeight="280.0" prefWidth="600.0" wrapText="true" />
+              </content>
+          </VirtualizedScrollPane>
+          <GridPane fx:id="chessboard" alignment="BOTTOM_CENTER" gridLinesVisible="true" layoutX="130.0" layoutY="290.0" prefHeight="320.0" prefWidth="320.0" styleClass="chessboard">
+              <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
+              </columnConstraints>
+              <rowConstraints>
+                  <RowConstraints maxHeight="40.0" minHeight="40.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="40.0" minHeight="40.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="40.0" minHeight="40.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="40.0" minHeight="40.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="40.0" minHeight="40.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="40.0" minHeight="40.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="40.0" minHeight="40.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="40.0" minHeight="40.0" prefHeight="40.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+          </GridPane>
+      </children>
+    </Pane>
+    <Button fx:id="saveButton" disable="true" layoutX="488.0" layoutY="77.0" mnemonicParsing="false" onAction="#saveGame" text="Save" />
+    <Button fx:id="editModeButton" layoutX="360.0" layoutY="77.0" mnemonicParsing="false" onAction="#switchToEditMode" text="Switch to Edit Mode" />
+    <Button fx:id="playModeButton" layoutX="360.0" layoutY="77.0" mnemonicParsing="false" onAction="#switchToPlayMode" text="Switch to Play Mode" visible="false" />
 </AnchorPane>
