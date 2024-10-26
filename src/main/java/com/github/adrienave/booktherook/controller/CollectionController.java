@@ -15,13 +15,10 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.util.Pair;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.fxmisc.richtext.InlineCssTextArea;
-import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
-import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.IOException;
 import java.net.URL;
@@ -31,9 +28,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import static com.github.adrienave.booktherook.mapping.PieceFontIcon.convertNodeToPiece;
+import static com.github.adrienave.booktherook.mapping.PieceFontIcon.createVisualPiece;
 import static com.github.adrienave.booktherook.util.Constants.CHESSBOARD_FILE_COUNT;
 import static com.github.adrienave.booktherook.util.Constants.CHESSBOARD_RANK_COUNT;
-import static org.kordamp.ikonli.fontawesome5.FontAwesomeSolid.*;
 
 @RequiredArgsConstructor
 public class CollectionController implements Initializable {
@@ -142,7 +140,7 @@ public class CollectionController implements Initializable {
         gameRecord.setLocation(gameLocation);
         gameService.setActiveGame(gameRecord);
 
-        String gameText = readRecord(gameRecord);
+        String gameText = gameRecord.toFormattedString();
         gameContentArea.replaceText(gameText);
         gameContentArea.setVisible(true);
 
@@ -186,22 +184,6 @@ public class CollectionController implements Initializable {
         isPlayMode = true;
     }
 
-    private static String readRecord(GameRecord gameRecord) {
-        StringBuilder gameText = new StringBuilder(gameRecord.getName() + "\n");
-        int currentMoveIndex = 1;
-        boolean isWhiteMove = true;
-        for (HalfMove move : gameRecord.getMoves()) {
-            if (isWhiteMove) {
-                gameText.append(String.format("%d. %s", currentMoveIndex, move.getAlgebraicNotation()));
-            } else {
-                gameText.append(String.format(" %s \n", move.getAlgebraicNotation()));
-                currentMoveIndex++;
-            }
-            isWhiteMove = !isWhiteMove;
-        }
-        return gameText.toString();
-    }
-
     private void initializeChessboard() {
         for (int rank = 0; rank < CHESSBOARD_RANK_COUNT; rank++) {
             for (int file = 0; file < CHESSBOARD_FILE_COUNT; file++) {
@@ -230,44 +212,6 @@ public class CollectionController implements Initializable {
             stackGrid[7][file].getChildren().add(createVisualPiece(FIRST_RANK_PIECE_SEQUENCE.get(file), Side.WHITE));
             stackGrid[6][file].getChildren().add(createVisualPiece(Piece.PAWN, Side.WHITE));
         }
-    }
-
-    private FontIcon createVisualPiece(Piece pieceName, Side side) {
-        FontIcon pieceIcon = new FontIcon(QUESTION);
-        switch (pieceName) {
-            case PAWN -> pieceIcon = new FontIcon(CHESS_PAWN);
-            case ROOK -> pieceIcon = new FontIcon(CHESS_ROOK);
-            case KNIGHT -> pieceIcon = new FontIcon(CHESS_KNIGHT);
-            case BISHOP -> pieceIcon = new FontIcon(CHESS_BISHOP);
-            case QUEEN -> pieceIcon = new FontIcon(CHESS_QUEEN);
-            case KING -> pieceIcon = new FontIcon(CHESS_KING);
-        }
-        switch (side) {
-            case BLACK -> pieceIcon.setIconColor(Color.BLACK);
-            case WHITE -> pieceIcon.setIconColor(Color.WHITE);
-        }
-        pieceIcon.setIconSize(30);
-        pieceIcon.setStroke(Color.BLACK);
-        return pieceIcon;
-    }
-
-    private Piece convertNodeToPiece(Node node) {
-        if (!(node instanceof FontIcon pieceRepresentation)) {
-            throw new RuntimeException(String.format("Node %s is not a valid Piece representation", node));
-        }
-        if (!(pieceRepresentation.getIconCode() instanceof FontAwesomeSolid pieceIcon)) {
-            throw new RuntimeException(String.format("Node %s is not a valid Piece representation", node));
-        }
-        return switch (pieceIcon) {
-            case CHESS_PAWN -> Piece.PAWN;
-            case CHESS_ROOK -> Piece.ROOK;
-            case CHESS_KNIGHT -> Piece.KNIGHT;
-            case CHESS_BISHOP -> Piece.BISHOP;
-            case CHESS_QUEEN -> Piece.QUEEN;
-            case CHESS_KING -> Piece.KING;
-            default ->
-                    throw new RuntimeException(String.format("Icon %s is not a valid Piece representation", pieceRepresentation.getIconLiteral()));
-        };
     }
 
     private void loadDataToTree() {
@@ -368,7 +312,7 @@ public class CollectionController implements Initializable {
         gameContentArea.setStyle(activeLineIndex, moveStart, moveEnd, "-fx-font-weight: bold;");
     }
 
-    private void swapPieceSquare(ObservableList<Node> sourceSquareContent, ObservableList<Node> destinationSquareContent) {
+    private static void swapPieceSquare(ObservableList<Node> sourceSquareContent, ObservableList<Node> destinationSquareContent) {
         Node piece = sourceSquareContent.get(0);
         sourceSquareContent.clear();
         destinationSquareContent.clear();

@@ -21,4 +21,20 @@ public class GameRecord {
     public String toString() {
         return this.name;
     }
+
+    public String toFormattedString() {
+        StringBuilder gameText = new StringBuilder(this.getName() + "\n");
+        int currentMoveIndex = 1;
+        boolean isWhiteMove = true;
+        for (HalfMove move : this.getMoves()) {
+            if (isWhiteMove) {
+                gameText.append(String.format("%d. %s", currentMoveIndex, move.getAlgebraicNotation()));
+            } else {
+                gameText.append(String.format(" %s \n", move.getAlgebraicNotation()));
+                currentMoveIndex++;
+            }
+            isWhiteMove = !isWhiteMove;
+        }
+        return gameText.toString();
+    }
 }
