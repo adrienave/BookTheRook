@@ -144,7 +144,7 @@ public class CollectionController implements Initializable {
             gameRecord = GameService.parsePGN(fileSystemManager.getGamePath(gameLocation));
         } catch (Exception e) {
             // TODO: render error message when game cannot be parsed (#14)
-            System.err.println(e);
+            e.printStackTrace();
         }
         gameRecord.setLocation(gameLocation);
         gameService.setActiveGame(gameRecord);
@@ -153,7 +153,7 @@ public class CollectionController implements Initializable {
         whitePlayerNameField.setText(gameRecord.getWhitePlayerName());
         blackPlayerNameField.setText(gameRecord.getBlackPlayerName());
         resultField.setText(gameRecord.getResult());
-        gameContentArea.replaceText(gameRecord.toFormattedString());
+        gameContentArea.replaceText(gameRecord.formattedContent());
         setChessboardInitialPosition();
 
         isPlayMode = true;

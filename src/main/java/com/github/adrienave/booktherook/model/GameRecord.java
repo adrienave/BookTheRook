@@ -25,7 +25,7 @@ public class GameRecord {
         return this.name;
     }
 
-    public String toFormattedString() {
+    public String formattedContent() {
         StringBuilder gameText = new StringBuilder();
         int currentMoveIndex = 1;
         boolean isWhiteMove = true;
