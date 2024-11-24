@@ -60,6 +60,8 @@ public class CollectionController implements Initializable {
     @FXML
     private TextField blackPlayerNameField;
     @FXML
+    private TextField eventNameField;
+    @FXML
     private TextField resultField;
     @FXML
     private InlineCssTextArea gameContentArea;
@@ -179,6 +181,7 @@ public class CollectionController implements Initializable {
         saveButton.setDisable(false);
         whitePlayerNameField.setEditable(true);
         blackPlayerNameField.setEditable(true);
+        eventNameField.setEditable(true);
         resultField.setEditable(true);
         gameContentArea.setEditable(true);
         gameContentArea.clearStyle(0, gameContentArea.getLength());
@@ -191,6 +194,7 @@ public class CollectionController implements Initializable {
         saveButton.setDisable(true);
         whitePlayerNameField.setEditable(false);
         blackPlayerNameField.setEditable(false);
+        eventNameField.setEditable(false);
         resultField.setEditable(false);
         gameContentArea.setEditable(false);
         String updatedGameContent = gameContentArea.getText();

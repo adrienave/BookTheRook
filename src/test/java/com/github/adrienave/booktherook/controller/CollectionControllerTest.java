@@ -187,6 +187,34 @@ class CollectionControllerTest {
         Assertions.assertThat(playModeButton).isInvisible();
     }
 
+    @Test
+    void enable_game_metadata_inputs_when_switch_to_edit_mode(FxRobot robot) {
+        runLaterButNotTooLate(collectionController::switchToEditMode);
+
+        TextField whitePlayerNameInput = robot.lookup("#whitePlayerNameField").queryAs(TextField.class);
+        Assertions.assertThat(whitePlayerNameInput.isEditable()).isTrue();
+        TextField blackPlayerNameInput = robot.lookup("#blackPlayerNameField").queryAs(TextField.class);
+        Assertions.assertThat(blackPlayerNameInput.isEditable()).isTrue();
+        TextField eventNameInput = robot.lookup("#eventNameField").queryAs(TextField.class);
+        Assertions.assertThat(eventNameInput.isEditable()).isTrue();
+        TextField resultInput = robot.lookup("#resultField").queryAs(TextField.class);
+        Assertions.assertThat(resultInput.isEditable()).isTrue();
+    }
+
+    @Test
+    void disable_game_metadata_inputs_when_switch_to_play_mode(FxRobot robot) {
+        runLaterButNotTooLate(collectionController::switchToPlayMode);
+
+        TextField whitePlayerNameInput = robot.lookup("#whitePlayerNameField").queryAs(TextField.class);
+        Assertions.assertThat(whitePlayerNameInput.isEditable()).isFalse();
+        TextField blackPlayerNameInput = robot.lookup("#blackPlayerNameField").queryAs(TextField.class);
+        Assertions.assertThat(blackPlayerNameInput.isEditable()).isFalse();
+        TextField eventNameInput = robot.lookup("#eventNameField").queryAs(TextField.class);
+        Assertions.assertThat(eventNameInput.isEditable()).isFalse();
+        TextField resultInput = robot.lookup("#resultField").queryAs(TextField.class);
+        Assertions.assertThat(resultInput.isEditable()).isFalse();
+    }
+
     @SneakyThrows
     private static void runLaterButNotTooLate(Runnable codeToExecute) {
         Semaphore semaphore = new Semaphore(0);
