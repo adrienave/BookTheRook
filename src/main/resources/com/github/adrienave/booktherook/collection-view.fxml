@@ -23,10 +23,12 @@
       <children>
           <Label text="White Player" />
           <Label layoutX="164.0" text="Black Player" />
-          <Label layoutX="322.0" text="Result" />
+          <Label layoutX="330.0" text="Event" />
+          <Label layoutX="499.0" text="Result" />
           <TextField fx:id="whitePlayerNameField" editable="false" layoutY="16.0" />
-          <TextField fx:id="blackPlayerNameField" editable="false" layoutX="164.0" layoutY="16.0" />
-          <TextField fx:id="resultField" editable="false" layoutX="322.0" layoutY="16.0" prefHeight="26.0" prefWidth="55.0" />
+          <TextField fx:id="blackPlayerNameField" editable="false" layoutX="164.0" layoutY="17.0" />
+          <TextField fx:id="eventNameField" editable="false" layoutX="330.0" layoutY="16.0" />
+          <TextField fx:id="resultField" editable="false" layoutX="499.0" layoutY="16.0" prefHeight="26.0" prefWidth="55.0" />
           <VirtualizedScrollPane layoutY="51.0" prefHeight="237.0" prefWidth="600.0">
               <!--suppress JavaFxDefaultTag (default tag still need to be defined despite IntelliJ claim)-->
               <content>
