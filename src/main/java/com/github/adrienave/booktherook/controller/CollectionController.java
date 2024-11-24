@@ -154,6 +154,7 @@ public class CollectionController implements Initializable {
         gamePanel.setVisible(true);
         whitePlayerNameField.setText(gameRecord.getWhitePlayerName());
         blackPlayerNameField.setText(gameRecord.getBlackPlayerName());
+        eventNameField.setText(gameRecord.getName());
         resultField.setText(gameRecord.getResult());
         gameContentArea.replaceText(gameRecord.formattedContent());
         setChessboardInitialPosition();
