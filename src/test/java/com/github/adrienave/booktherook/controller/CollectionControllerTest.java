@@ -155,7 +155,6 @@ class CollectionControllerTest {
     }
 
     @Test
-    @Disabled("To Be Implemented")
     void save_active_game_with_content_from_fields_when_game_is_selected(FxRobot robot) throws IOException {
         String gameContent = "1. c4 e5 2. Nc3 Nf6";
         String whitePlayerName = "Oswald Lagrouse";
