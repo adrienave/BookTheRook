@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import lombok.SneakyThrows;
 import org.fxmisc.richtext.InlineCssTextArea;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxRobot;
@@ -154,8 +155,20 @@ class CollectionControllerTest {
     }
 
     @Test
+    @Disabled("To Be Implemented")
     void save_active_game_with_content_from_fields_when_game_is_selected(FxRobot robot) throws IOException {
         String gameContent = "1. c4 e5 2. Nc3 Nf6";
+        String whitePlayerName = "Oswald Lagrouse";
+        String blackPlayerName = "Le Chat Potté";
+        String expectedGameFileContent = "[White \"" + whitePlayerName + "\"]\n" +
+                "[Black \"" + blackPlayerName +"\"]\n" +
+                "\n" +
+                gameContent;
+
+        TextField whitePlayerNameField = robot.lookup("#whitePlayerNameField").queryAs(TextField.class);
+        whitePlayerNameField.setText(whitePlayerName);
+        TextField blackPlayerNameField = robot.lookup("#blackPlayerNameField").queryAs(TextField.class);
+        blackPlayerNameField.setText(blackPlayerName);
         InlineCssTextArea inlineCssTextArea = robot.lookup("#gameContentArea").queryAs(InlineCssTextArea.class);
         runLaterButNotTooLate(() -> inlineCssTextArea.replaceText(gameContent));
 
@@ -164,7 +177,7 @@ class CollectionControllerTest {
 
         collectionController.saveGame();
 
-        verify(fileSystemManager).saveGame(any(), eq(gameContent));
+        verify(fileSystemManager).saveGame(any(), eq(expectedGameFileContent));
     }
 
     @Test
