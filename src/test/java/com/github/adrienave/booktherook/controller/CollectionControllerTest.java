@@ -10,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import lombok.SneakyThrows;
+import org.fxmisc.richtext.InlineCssTextArea;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxRobot;
@@ -143,12 +144,27 @@ class CollectionControllerTest {
 
     @Test
     void save_active_game_to_its_location_when_game_is_selected() throws IOException {
-        GameRecord activeGame = GameRecord.builder().build();
+        String location = "/path/to/the/game";
+        GameRecord activeGame = GameRecord.builder().location(location).build();
         when(gameService.getActiveGame()).thenReturn(activeGame);
 
         collectionController.saveGame();
 
-        verify(fileSystemManager).saveGame(any(), any());
+        verify(fileSystemManager).saveGame(eq(location), any());
+    }
+
+    @Test
+    void save_active_game_with_content_from_fields_when_game_is_selected(FxRobot robot) throws IOException {
+        String gameContent = "1. c4 e5 2. Nc3 Nf6";
+        InlineCssTextArea inlineCssTextArea = robot.lookup("#gameContentArea").queryAs(InlineCssTextArea.class);
+        runLaterButNotTooLate(() -> inlineCssTextArea.replaceText(gameContent));
+
+        GameRecord activeGame = GameRecord.builder().location("/path/to/the/game").build();
+        when(gameService.getActiveGame()).thenReturn(activeGame);
+
+        collectionController.saveGame();
+
+        verify(fileSystemManager).saveGame(any(), eq(gameContent));
     }
 
     @Test
