@@ -127,7 +127,7 @@ public class CollectionController implements Initializable {
                     "[Black \"" + blackPlayerNameField.getText() + "\"]\n" +
                     "[Result \"" + result + "\"]\n" +
                     "\n" +
-                    gameContentArea.getText() + " " + result;
+                    gameContentArea.getText().replaceAll("\n", "") + " " + result;
             fileSystemManager.saveGame(gameService.getActiveGame().getLocation(), contentToSave);
         } catch (IOException e) {
             throw new RuntimeException(String.format("Cannot save game into file %s", gameService.getActiveGame().getLocation()), e);

@@ -187,6 +187,22 @@ class CollectionControllerTest {
     }
 
     @Test
+    void removes_line_breaks_from_game_content_when_game_is_saved(FxRobot robot) throws IOException {
+        String gameContent = "1. c4 e5 \n" +
+                "2. Nc3 Nf6";
+        String expectedSavedContent = "1. c4 e5 2. Nc3 Nf6";
+        InlineCssTextArea inlineCssTextArea = robot.lookup("#gameContentArea").queryAs(InlineCssTextArea.class);
+        runLaterButNotTooLate(() -> inlineCssTextArea.replaceText(gameContent));
+
+        GameRecord activeGame = GameRecord.builder().location("/path/to/the/game").build();
+        when(gameService.getActiveGame()).thenReturn(activeGame);
+
+        collectionController.saveGame();
+
+        verify(fileSystemManager).saveGame(any(), contains(expectedSavedContent));
+    }
+
+    @Test
     void enable_save_button_when_switch_to_edit_mode(FxRobot robot) {
         runLaterButNotTooLate(collectionController::switchToEditMode);
 
