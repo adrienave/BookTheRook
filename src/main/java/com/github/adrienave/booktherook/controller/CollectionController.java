@@ -121,10 +121,13 @@ public class CollectionController implements Initializable {
     @FXML
     public void saveGame() {
         try {
-            String contentToSave = "[White \"" + whitePlayerNameField.getText() + "\"]\n" +
-                    "[Black \"" + blackPlayerNameField.getText() +"\"]\n" +
+            String result = resultField.getText();
+            String contentToSave = "[Event \"" + eventNameField.getText() + "\"]\n" +
+                    "[White \"" + whitePlayerNameField.getText() + "\"]\n" +
+                    "[Black \"" + blackPlayerNameField.getText() + "\"]\n" +
+                    "[Result \"" + result + "\"]\n" +
                     "\n" +
-                    gameContentArea.getText();
+                    gameContentArea.getText() + " " + result;
             fileSystemManager.saveGame(gameService.getActiveGame().getLocation(), contentToSave);
         } catch (IOException e) {
             throw new RuntimeException(String.format("Cannot save game into file %s", gameService.getActiveGame().getLocation()), e);
