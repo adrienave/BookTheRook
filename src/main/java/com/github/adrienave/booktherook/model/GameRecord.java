@@ -3,10 +3,10 @@ package com.github.adrienave.booktherook.model;
 
 import lombok.Builder;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Data
 @Builder
@@ -28,7 +28,7 @@ public class GameRecord {
     }
 
     public String formattedContent() {
-        if (!Objects.equals(parsingError, "")) {
+        if (!StringUtils.isEmpty(parsingError)) {
             return parsingError;
         }
         StringBuilder gameText = new StringBuilder();
