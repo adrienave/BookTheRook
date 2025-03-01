@@ -19,7 +19,7 @@ import java.util.Optional;
 public class GameService {
     private GameRecord activeGame;
 
-    public static GameRecord parsePGN(String gameLocation) throws Exception {
+    public GameRecord parsePGN(String gameLocation) throws Exception {
         PgnHolder pgn = new PgnHolder(gameLocation);
         pgn.loadPgn();
         Game game = pgn.getGames().get(0);

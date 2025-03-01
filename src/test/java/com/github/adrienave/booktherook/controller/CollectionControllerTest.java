@@ -143,6 +143,42 @@ class CollectionControllerTest {
     }
 
     @Test
+    void render_game_moves_into_game_area_when_game_is_valid(FxRobot robot) throws Exception {
+        String gameLocation = "/myGame";
+        String formattedMoves = "1. c4 c5 2. g3 Nc6";
+        GameRecord game = mock(GameRecord.class);
+        when(gameService.parsePGN(any())).thenReturn(game);
+        when(game.formattedContent()).thenReturn(formattedMoves);
+
+        runLaterButNotTooLate(() -> collectionController.renderGame(gameLocation));
+
+        String renderedContent = robot.lookup("#gameContentArea").queryAs(InlineCssTextArea.class).getText();
+        Assertions.assertThat(renderedContent).isEqualTo(formattedMoves);
+    }
+
+    @Test
+    void render_meta_game_fields_when_game_is_valid(FxRobot robot) throws Exception {
+        String gameLocation = "/myGame";
+        String eventName = "Cat Kings Tournament";
+        String whitePlayerName = "Oswald Lagrouse";
+        String blackPlayerName = "Le Chat Potté";
+        String result = "1-0";
+        GameRecord game = GameRecord.builder().name(eventName).whitePlayerName(whitePlayerName).blackPlayerName(blackPlayerName).result(result).build();
+        when(gameService.parsePGN(any())).thenReturn(game);
+
+        runLaterButNotTooLate(() -> collectionController.renderGame(gameLocation));
+
+        String renderedWhitePlayerName = robot.lookup("#whitePlayerNameField").queryAs(TextField.class).getText();
+        Assertions.assertThat(renderedWhitePlayerName).isEqualTo(whitePlayerName);
+        String renderedBlackPlayerName = robot.lookup("#blackPlayerNameField").queryAs(TextField.class).getText();
+        Assertions.assertThat(renderedBlackPlayerName).isEqualTo(blackPlayerName);
+        String renderedEventName = robot.lookup("#eventNameField").queryAs(TextField.class).getText();
+        Assertions.assertThat(renderedEventName).isEqualTo(eventName);
+        String renderedResult = robot.lookup("#resultField").queryAs(TextField.class).getText();
+        Assertions.assertThat(renderedResult).isEqualTo(result);
+    }
+
+    @Test
     void save_active_game_to_its_location_when_game_is_selected() throws IOException {
         String location = "/path/to/the/game";
         GameRecord activeGame = GameRecord.builder().location(location).build();
