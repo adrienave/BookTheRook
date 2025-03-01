@@ -333,7 +333,7 @@ public class CollectionController implements Initializable {
             moveEnd = moveStart + lineParts.get(1).length() + 1;
         } else {
             moveStart = lineParts.get(0).length() + 1 + lineParts.get(1).length() + 1;
-            moveEnd = moveStart + lineParts.get(2).length() + 1;
+            moveEnd = moveStart + lineParts.get(2).length();
         }
 
         gameContentArea.clearStyle(0, gameContentArea.getLength());

@@ -39,11 +39,11 @@ public class GameRecord {
             if (isWhiteMove) {
                 gameText.append(String.format("%d. %s", currentMoveIndex, move.getAlgebraicNotation()));
             } else {
-                gameText.append(String.format(" %s \n", move.getAlgebraicNotation()));
+                gameText.append(String.format(" %s\n", move.getAlgebraicNotation()));
                 currentMoveIndex++;
             }
             isWhiteMove = !isWhiteMove;
         }
-        return gameText.toString();
+        return gameText.toString().trim();
     }
 }
