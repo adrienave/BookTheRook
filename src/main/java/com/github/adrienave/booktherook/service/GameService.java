@@ -28,7 +28,7 @@ public class GameService {
         return GameRecord.builder()
                 .whitePlayerName(game.getWhitePlayer().getName())
                 .blackPlayerName(game.getBlackPlayer().getName())
-                .name(game.getRound().getEvent().getName())
+                .eventName(game.getRound().getEvent().getName())
                 .result(game.getResult().getDescription())
                 .moves(moves)
                 .build();

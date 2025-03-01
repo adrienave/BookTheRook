@@ -163,7 +163,7 @@ class CollectionControllerTest {
         String whitePlayerName = "Oswald Lagrouse";
         String blackPlayerName = "Le Chat Potté";
         String result = "1-0";
-        GameRecord game = GameRecord.builder().name(eventName).whitePlayerName(whitePlayerName).blackPlayerName(blackPlayerName).result(result).build();
+        GameRecord game = GameRecord.builder().eventName(eventName).whitePlayerName(whitePlayerName).blackPlayerName(blackPlayerName).result(result).build();
         when(gameService.parsePGN(any())).thenReturn(game);
 
         runLaterButNotTooLate(() -> collectionController.renderGame(gameLocation));

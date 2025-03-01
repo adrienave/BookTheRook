@@ -14,6 +14,7 @@ public class GameRecord {
     private final String name;
     private final String whitePlayerName;
     private final String blackPlayerName;
+    private final String eventName;
     private final String result;
     private final String parsingError;
     @Builder.Default
