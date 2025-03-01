@@ -148,11 +148,12 @@ public class CollectionController implements Initializable {
     }
 
     public void renderGame(String gameLocation) {
-        GameRecord gameRecord = GameRecord.builder().name("Error while parsing game").build();
+        GameRecord gameRecord;
         try {
             gameRecord = gameService.parsePGN(fileSystemManager.getGamePath(gameLocation));
         } catch (Exception e) {
             // TODO: render error message when game cannot be parsed (#14)
+            gameRecord = GameRecord.builder().parsingError("Error while parsing game").build();
             e.printStackTrace();
         }
         gameRecord.setLocation(gameLocation);

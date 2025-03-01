@@ -179,6 +179,17 @@ class CollectionControllerTest {
     }
 
     @Test
+    void render_error_message_into_game_area_when_game_format_is_invalid(FxRobot robot) throws Exception {
+        String gameLocation = "/myInvalidGame";
+        when(gameService.parsePGN(any())).thenThrow(IndexOutOfBoundsException.class);
+
+        runLaterButNotTooLate(() -> collectionController.renderGame(gameLocation));
+
+        String renderedContent = robot.lookup("#gameContentArea").queryAs(InlineCssTextArea.class).getText();
+        Assertions.assertThat(renderedContent).isEqualTo("Error while parsing game");
+    }
+
+    @Test
     void save_active_game_to_its_location_when_game_is_selected() throws IOException {
         String location = "/path/to/the/game";
         GameRecord activeGame = GameRecord.builder().location(location).build();

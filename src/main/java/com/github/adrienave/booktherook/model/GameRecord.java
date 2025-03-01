@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Data
 @Builder
@@ -14,6 +15,7 @@ public class GameRecord {
     private final String whitePlayerName;
     private final String blackPlayerName;
     private final String result;
+    private final String parsingError;
     @Builder.Default
     private List<HalfMove> moves = new ArrayList<>();
     @Builder.Default
@@ -26,6 +28,9 @@ public class GameRecord {
     }
 
     public String formattedContent() {
+        if (!Objects.equals(parsingError, "")) {
+            return parsingError;
+        }
         StringBuilder gameText = new StringBuilder();
         int currentMoveIndex = 1;
         boolean isWhiteMove = true;
