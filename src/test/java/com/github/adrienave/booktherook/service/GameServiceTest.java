@@ -1,6 +1,7 @@
 package com.github.adrienave.booktherook.service;
 
 import com.github.adrienave.booktherook.exception.InvalidPGNFileException;
+import com.github.adrienave.booktherook.exception.MissingGameException;
 import com.github.adrienave.booktherook.model.GameRecord;
 import com.github.adrienave.booktherook.model.HalfMove;
 import com.github.adrienave.booktherook.util.Side;
@@ -8,6 +9,7 @@ import com.github.bhlangonijr.chesslib.Square;
 import com.github.bhlangonijr.chesslib.game.*;
 import com.github.bhlangonijr.chesslib.move.Move;
 import com.github.bhlangonijr.chesslib.move.MoveList;
+import com.github.bhlangonijr.chesslib.pgn.PgnException;
 import com.github.bhlangonijr.chesslib.pgn.PgnHolder;
 import org.junit.jupiter.api.Test;
 
@@ -48,8 +50,16 @@ class GameServiceTest {
     }
 
     @Test()
-    void throws_InvalidPGNFileException_when_pgn_does_not_contain_valid_game() {
+    void throws_MissingGameException_when_pgn_does_not_contain_game() {
         PgnHolder pgnHolder = givenPgnHolderWithoutGame();
+        when(gameService.getPgnHolder(anyString())).thenReturn(pgnHolder);
+
+        assertThatThrownBy(() -> gameService.parsePGN("/invalidChessGameFile")).isInstanceOf(MissingGameException.class).hasMessage("/invalidChessGameFile does not contain any game");
+    }
+
+    @Test()
+    void throws_InvalidPGNFileException_when_pgn_does_not_contain_valid_game() throws Exception {
+        PgnHolder pgnHolder = givenPgnHolderWithInvalidGame();
         when(gameService.getPgnHolder(anyString())).thenReturn(pgnHolder);
 
         assertThatThrownBy(() -> gameService.parsePGN("/invalidChessGameFile")).isInstanceOf(InvalidPGNFileException.class).hasMessage("Game from /invalidChessGameFile cannot be parsed");
@@ -71,6 +81,12 @@ class GameServiceTest {
     private PgnHolder givenPgnHolderWithoutGame() {
         PgnHolder pgnHolder = mock(PgnHolder.class);
         when(pgnHolder.getGames()).thenReturn(List.of());
+        return pgnHolder;
+    }
+
+    private PgnHolder givenPgnHolderWithInvalidGame() throws Exception {
+        PgnHolder pgnHolder = mock(PgnHolder.class);
+        doThrow(PgnException.class).when(pgnHolder).loadPgn();
         return pgnHolder;
     }
 }
