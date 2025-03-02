@@ -1,5 +1,6 @@
 package com.github.adrienave.booktherook.service;
 
+import com.github.adrienave.booktherook.exception.InvalidPGNFileException;
 import com.github.adrienave.booktherook.model.GameRecord;
 import com.github.adrienave.booktherook.model.HalfMove;
 import com.github.adrienave.booktherook.util.Side;
@@ -8,12 +9,12 @@ import com.github.bhlangonijr.chesslib.game.*;
 import com.github.bhlangonijr.chesslib.move.Move;
 import com.github.bhlangonijr.chesslib.move.MoveList;
 import com.github.bhlangonijr.chesslib.pgn.PgnHolder;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 class GameServiceTest {
@@ -21,7 +22,6 @@ class GameServiceTest {
 
     @Test
     void returns_parsed_game_when_game_location_exists() throws Exception {
-        String gameLocation = "/realChessGame";
         MoveList halfMoves = new MoveList();
         Move firstMove = new Move(Square.C2, Square.C4);
         firstMove.setSan("c4");
@@ -37,7 +37,7 @@ class GameServiceTest {
         PgnHolder pgnHolder = givenPgnHolderWithValidGame(eventName, whitePlayerName, blackPlayerName, gameResult, halfMoves);
         when(gameService.getPgnHolder(anyString())).thenReturn(pgnHolder);
 
-        GameRecord gameRecord = gameService.parsePGN(gameLocation);
+        GameRecord gameRecord = gameService.parsePGN("/realChessGame");
 
         verify(pgnHolder).loadPgn();
         assertThat(gameRecord.getMoves()).containsAll(moves);
@@ -47,7 +47,15 @@ class GameServiceTest {
         assertThat(gameRecord.getResult()).isEqualTo(gameResult.getDescription());
     }
 
-    private static PgnHolder givenPgnHolderWithValidGame(String eventName, String whitePlayerName, String blackPlayerName, GameResult gameResult, MoveList moves) {
+    @Test()
+    void throws_InvalidPGNFileException_when_pgn_does_not_contain_valid_game() {
+        PgnHolder pgnHolder = givenPgnHolderWithoutGame();
+        when(gameService.getPgnHolder(anyString())).thenReturn(pgnHolder);
+
+        assertThatThrownBy(() -> gameService.parsePGN("/invalidChessGameFile")).isInstanceOf(InvalidPGNFileException.class).hasMessage("Game from /invalidChessGameFile cannot be parsed");
+    }
+
+    private PgnHolder givenPgnHolderWithValidGame(String eventName, String whitePlayerName, String blackPlayerName, GameResult gameResult, MoveList moves) {
         PgnHolder pgnHolder = mock(PgnHolder.class);
         Event event = new Event();
         event.setName(eventName);
@@ -57,6 +65,12 @@ class GameServiceTest {
         game.setResult(gameResult);
         game.setHalfMoves(moves);
         when(pgnHolder.getGames()).thenReturn(List.of(game));
+        return pgnHolder;
+    }
+
+    private PgnHolder givenPgnHolderWithoutGame() {
+        PgnHolder pgnHolder = mock(PgnHolder.class);
+        when(pgnHolder.getGames()).thenReturn(List.of());
         return pgnHolder;
     }
 }

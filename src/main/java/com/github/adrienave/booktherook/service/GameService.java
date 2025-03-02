@@ -1,5 +1,6 @@
 package com.github.adrienave.booktherook.service;
 
+import com.github.adrienave.booktherook.exception.InvalidPGNFileException;
 import com.github.adrienave.booktherook.model.GameRecord;
 import com.github.adrienave.booktherook.model.HalfMove;
 import com.github.adrienave.booktherook.util.Piece;
@@ -22,6 +23,9 @@ public class GameService {
     public GameRecord parsePGN(String gameLocation) throws Exception {
         PgnHolder pgn = getPgnHolder(gameLocation);
         pgn.loadPgn();
+        if (pgn.getGames().isEmpty()) {
+            throw new InvalidPGNFileException("Game from %s cannot be parsed".formatted(gameLocation));
+        }
         Game game = pgn.getGames().get(0);
         List<HalfMove> moves = chesslibMovesToHalfMoves(game.getHalfMoves());
 
