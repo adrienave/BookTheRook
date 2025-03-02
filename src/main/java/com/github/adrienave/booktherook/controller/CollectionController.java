@@ -208,7 +208,7 @@ public class CollectionController implements Initializable {
         gameContentArea.setEditable(false);
         String updatedGameContent = gameContentArea.getText();
         String updatedGameMoves = updatedGameContent.substring(updatedGameContent.indexOf('\n') + 1);
-        gameService.setActiveGameUpdatedMoves(GameService.toSAN(updatedGameMoves));
+        gameService.setActiveGameUpdatedMoves(gameService.toSAN(updatedGameMoves));
         setChessboardInitialPosition();
         isPlayMode = true;
     }

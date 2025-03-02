@@ -20,7 +20,7 @@ public class GameService {
     private GameRecord activeGame;
 
     public GameRecord parsePGN(String gameLocation) throws Exception {
-        PgnHolder pgn = new PgnHolder(gameLocation);
+        PgnHolder pgn = getPgnHolder(gameLocation);
         pgn.loadPgn();
         Game game = pgn.getGames().get(0);
         List<HalfMove> moves = chesslibMovesToHalfMoves(game.getHalfMoves());
@@ -34,7 +34,7 @@ public class GameService {
                 .build();
     }
 
-    public static String toSAN(String gameContentInput) {
+    public String toSAN(String gameContentInput) {
         return gameContentInput.replace("\n", " ");
     }
 
@@ -44,6 +44,22 @@ public class GameService {
 
         activeGame.setMoves(chesslibMovesToHalfMoves(chesslibMoves));
         activeGame.setCurrentMoveIndex(-1);
+    }
+
+    public Optional<HalfMove> updateActiveMove(boolean switchToNext) {
+        if (switchToNext && activeGame.getCurrentMoveIndex() < activeGame.getMoves().size() - 1) {
+            activeGame.setCurrentMoveIndex(activeGame.getCurrentMoveIndex() + 1);
+            return Optional.of(activeGame.getMoves().get(activeGame.getCurrentMoveIndex()));
+        } else if (!switchToNext && activeGame.getCurrentMoveIndex() > -1) {
+            HalfMove activeMove = activeGame.getMoves().get(activeGame.getCurrentMoveIndex());
+            activeGame.setCurrentMoveIndex(activeGame.getCurrentMoveIndex() - 1);
+            return Optional.of(activeMove);
+        }
+        return Optional.empty();
+    }
+
+    PgnHolder getPgnHolder(String gameLocation) {
+        return new PgnHolder(gameLocation);
     }
 
     private static List<HalfMove> chesslibMovesToHalfMoves(MoveList game) {
@@ -59,18 +75,6 @@ public class GameService {
             isWhiteTurn = !isWhiteTurn;
         }
         return moves;
-    }
-
-    public Optional<HalfMove> updateActiveMove(boolean switchToNext) {
-        if (switchToNext && activeGame.getCurrentMoveIndex() < activeGame.getMoves().size() - 1) {
-            activeGame.setCurrentMoveIndex(activeGame.getCurrentMoveIndex() + 1);
-            return Optional.of(activeGame.getMoves().get(activeGame.getCurrentMoveIndex()));
-        } else if (!switchToNext && activeGame.getCurrentMoveIndex() > -1) {
-            HalfMove activeMove = activeGame.getMoves().get(activeGame.getCurrentMoveIndex());
-            activeGame.setCurrentMoveIndex(activeGame.getCurrentMoveIndex() - 1);
-            return Optional.of(activeMove);
-        }
-        return Optional.empty();
     }
 
     private static Piece convertChesslibPieceToPiece(PieceType chesslibType) {
