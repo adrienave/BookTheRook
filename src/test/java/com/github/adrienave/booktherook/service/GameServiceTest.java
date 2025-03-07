@@ -2,6 +2,7 @@ package com.github.adrienave.booktherook.service;
 
 import com.github.adrienave.booktherook.exception.InvalidPGNFileException;
 import com.github.adrienave.booktherook.exception.MissingGameException;
+import com.github.adrienave.booktherook.exception.MissingMandatoryPGNFieldException;
 import com.github.adrienave.booktherook.model.GameRecord;
 import com.github.adrienave.booktherook.model.HalfMove;
 import com.github.adrienave.booktherook.util.Side;
@@ -49,7 +50,7 @@ class GameServiceTest {
         assertThat(gameRecord.getResult()).isEqualTo(gameResult.getDescription());
     }
 
-    @Test()
+    @Test
     void throws_MissingGameException_when_pgn_does_not_contain_game() {
         PgnHolder pgnHolder = givenPgnHolderWithoutGame();
         when(gameService.getPgnHolder(anyString())).thenReturn(pgnHolder);
@@ -57,12 +58,20 @@ class GameServiceTest {
         assertThatThrownBy(() -> gameService.parsePGN("/invalidChessGameFile")).isInstanceOf(MissingGameException.class).hasMessage("/invalidChessGameFile does not contain any game");
     }
 
-    @Test()
+    @Test
     void throws_InvalidPGNFileException_when_pgn_does_not_contain_valid_game() throws Exception {
         PgnHolder pgnHolder = givenPgnHolderWithInvalidGame();
         when(gameService.getPgnHolder(anyString())).thenReturn(pgnHolder);
 
         assertThatThrownBy(() -> gameService.parsePGN("/invalidChessGameFile")).isInstanceOf(InvalidPGNFileException.class).hasMessage("Game from /invalidChessGameFile cannot be parsed");
+    }
+
+    @Test
+    void throws_MissingMandatoryPGNFieldException_when_player_is_missing() throws Exception {
+        PgnHolder pgnHolder = givenPgnHolderWithMissingPlayerField();
+        when(gameService.getPgnHolder(anyString())).thenReturn(pgnHolder);
+
+        assertThatThrownBy(() -> gameService.parsePGN("/invalidChessGameFile")).isInstanceOf(MissingMandatoryPGNFieldException.class).hasMessage("File should contain both [White \"\"] and [Black \"\"] data");
     }
 
     private PgnHolder givenPgnHolderWithValidGame(String eventName, String whitePlayerName, String blackPlayerName, GameResult gameResult, MoveList moves) {
@@ -87,6 +96,12 @@ class GameServiceTest {
     private PgnHolder givenPgnHolderWithInvalidGame() throws Exception {
         PgnHolder pgnHolder = mock(PgnHolder.class);
         doThrow(PgnException.class).when(pgnHolder).loadPgn();
+        return pgnHolder;
+    }
+
+    private PgnHolder givenPgnHolderWithMissingPlayerField() throws Exception {
+        PgnHolder pgnHolder = mock(PgnHolder.class);
+        doThrow(new NullPointerException("Cannot invoke \"com.github.bhlangonijr.chesslib.game.Player.getId()\" because the return value of \"com.github.bhlangonijr.chesslib.game.Game.getWhitePlayer()\" is null")).when(pgnHolder).loadPgn();
         return pgnHolder;
     }
 }

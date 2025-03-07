@@ -2,6 +2,7 @@ package com.github.adrienave.booktherook.controller;
 
 import com.github.adrienave.booktherook.exception.InvalidPGNFileException;
 import com.github.adrienave.booktherook.exception.MissingGameException;
+import com.github.adrienave.booktherook.exception.MissingMandatoryPGNFieldException;
 import com.github.adrienave.booktherook.javafx.CollectionTreeCellImpl;
 import com.github.adrienave.booktherook.model.GameRecord;
 import com.github.adrienave.booktherook.model.HalfMove;
@@ -157,10 +158,10 @@ public class CollectionController implements Initializable {
             gameRecord = GameRecord.builder().parsingError("File contains improper PGN syntax").build();
         } catch (MissingGameException e) {
             gameRecord = GameRecord.builder().parsingError("File doesn't contain any relevant game data").build();
+        } catch (MissingMandatoryPGNFieldException e) {
+            gameRecord = GameRecord.builder().parsingError(e.getMessage()).build();
         } catch (Exception e) {
-            // TODO: render error message when game cannot be parsed (#14)
-            gameRecord = GameRecord.builder().parsingError("Error while parsing game").build();
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         gameRecord.setLocation(gameLocation);
         gameService.setActiveGame(gameRecord);

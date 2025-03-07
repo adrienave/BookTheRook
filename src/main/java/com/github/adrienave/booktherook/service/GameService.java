@@ -2,12 +2,14 @@ package com.github.adrienave.booktherook.service;
 
 import com.github.adrienave.booktherook.exception.InvalidPGNFileException;
 import com.github.adrienave.booktherook.exception.MissingGameException;
+import com.github.adrienave.booktherook.exception.MissingMandatoryPGNFieldException;
 import com.github.adrienave.booktherook.model.GameRecord;
 import com.github.adrienave.booktherook.model.HalfMove;
 import com.github.adrienave.booktherook.util.Piece;
 import com.github.adrienave.booktherook.util.Side;
 import com.github.bhlangonijr.chesslib.PieceType;
 import com.github.bhlangonijr.chesslib.game.Game;
+import com.github.bhlangonijr.chesslib.game.Player;
 import com.github.bhlangonijr.chesslib.move.Move;
 import com.github.bhlangonijr.chesslib.move.MoveList;
 import com.github.bhlangonijr.chesslib.pgn.PgnException;
@@ -28,6 +30,11 @@ public class GameService {
             pgn.loadPgn();
         } catch (PgnException e) {
             throw new InvalidPGNFileException("Game from %s cannot be parsed".formatted(gameLocation));
+        } catch (NullPointerException e) {
+            if (e.getMessage().contains("\"com.github.bhlangonijr.chesslib.game.Game.getWhitePlayer()\" is null") || e.getMessage().contains("\"com.github.bhlangonijr.chesslib.game.Game.getBlackPlayer()\" is null")) {
+                throw new MissingMandatoryPGNFieldException("File should contain both [White \"\"] and [Black \"\"] data");
+            }
+            throw e;
         }
         if (pgn.getGames().isEmpty()) {
             throw new MissingGameException("%s does not contain any game".formatted(gameLocation));
@@ -36,8 +43,8 @@ public class GameService {
         List<HalfMove> moves = chesslibMovesToHalfMoves(game.getHalfMoves());
 
         return GameRecord.builder()
-                .whitePlayerName(game.getWhitePlayer().getName())
-                .blackPlayerName(game.getBlackPlayer().getName())
+                .whitePlayerName(Optional.ofNullable(game.getWhitePlayer()).map(Player::getName).orElse(""))
+                .blackPlayerName(Optional.ofNullable(game.getBlackPlayer()).map(Player::getName).orElse(""))
                 .eventName(game.getRound().getEvent().getName())
                 .result(game.getResult().getDescription())
                 .moves(moves)
