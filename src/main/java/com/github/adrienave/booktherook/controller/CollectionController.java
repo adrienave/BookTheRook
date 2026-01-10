@@ -75,6 +75,7 @@ public class CollectionController implements Initializable {
     private final GameService gameService;
     private TreeItem<Object> collectionRoot;
     private boolean isPlayMode;
+    private boolean isBoardWhiteOriented;
     private final StackPane[][] stackGrid = new StackPane[CHESSBOARD_RANK_COUNT][CHESSBOARD_FILE_COUNT];
 
     @Override
@@ -143,6 +144,8 @@ public class CollectionController implements Initializable {
             return;
         }
 
+        isBoardWhiteOriented = !isBoardWhiteOriented;
+
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 4; j++) {
                 ObservableList<Node> startPositionContent = stackGrid[j][i].getChildren();
@@ -191,6 +194,7 @@ public class CollectionController implements Initializable {
         setChessboardInitialPosition();
 
         isPlayMode = true;
+        isBoardWhiteOriented = true;
     }
 
     public void changeActiveMove(boolean switchToNext) {
@@ -295,7 +299,7 @@ public class CollectionController implements Initializable {
     }
 
     private void proceedMove(HalfMove move, boolean isPlayed) {
-        Pair<Square, Square> boardLocations = move.convertToBoardLocation();
+        Pair<Square, Square> boardLocations = move.convertToBoardLocation(isBoardWhiteOriented);
         Square startLocation = boardLocations.getKey();
         Square endLocation = boardLocations.getValue();
         ObservableList<Node> startPositionContent = stackGrid[CHESSBOARD_RANK_COUNT - 1 - startLocation.rank()][startLocation.file()].getChildren();

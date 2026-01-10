@@ -11,21 +11,21 @@ class HalfMoveTest {
     void second_square_does_not_have_same_file_when_move_is_to_another_file() {
         HalfMove move = HalfMove.builder().coordinateNotation("a1b1").build();
 
-        assertThat(move.convertToBoardLocation()).extracting(Pair::getKey, Pair::getValue).contains(new Square(0, 0), new Square(1, 0));
+        assertThat(move.convertToBoardLocation(true)).extracting(Pair::getKey, Pair::getValue).contains(new Square(0, 0), new Square(1, 0));
     }
 
     @Test
     void second_square_does_not_have_same_rank_when_move_is_to_another_rank() {
         HalfMove move = HalfMove.builder().coordinateNotation("a1a2").build();
 
-        assertThat(move.convertToBoardLocation()).extracting(Pair::getKey, Pair::getValue).contains(new Square(0, 0), new Square(0, 1));
+        assertThat(move.convertToBoardLocation(true)).extracting(Pair::getKey, Pair::getValue).contains(new Square(0, 0), new Square(0, 1));
     }
 
     @Test
     void squares_are_boundaries_when_move_is_one_corner_to_another_one() {
         HalfMove move = HalfMove.builder().coordinateNotation("h1a8").build();
 
-        assertThat(move.convertToBoardLocation()).extracting(Pair::getKey, Pair::getValue).contains(new Square(7, 0), new Square(0, 7));
+        assertThat(move.convertToBoardLocation(true)).extracting(Pair::getKey, Pair::getValue).contains(new Square(7, 0), new Square(0, 7));
     }
 
     @Test

@@ -17,9 +17,9 @@ public class HalfMove {
     @Builder.Default
     private boolean isEnPassant = false;
 
-    public Pair<Square, Square> convertToBoardLocation() {
-        Square startPosition = new Square(letterToIndex(coordinateNotation.charAt(0)), Character.getNumericValue(coordinateNotation.charAt(1)) - 1);
-        Square endPosition = new Square(letterToIndex(coordinateNotation.charAt(2)), Character.getNumericValue(coordinateNotation.charAt(3)) - 1);
+    public Pair<Square, Square> convertToBoardLocation(boolean isBoardWhiteOriented) {
+        Square startPosition = new Square(letterToIndex(coordinateNotation.charAt(0), isBoardWhiteOriented), isBoardWhiteOriented ? Character.getNumericValue(coordinateNotation.charAt(1)) - 1 : 8 - Character.getNumericValue(coordinateNotation.charAt(1)));
+        Square endPosition = new Square(letterToIndex(coordinateNotation.charAt(2), isBoardWhiteOriented), isBoardWhiteOriented ? Character.getNumericValue(coordinateNotation.charAt(3)) - 1 : 8 - Character.getNumericValue(coordinateNotation.charAt(3)));
 
         return new Pair<>(startPosition, endPosition);
     }
@@ -38,7 +38,10 @@ public class HalfMove {
 
     public boolean isTake() { return algebraicNotation.contains("x"); }
 
-    private static int letterToIndex(char letter) {
-        return letter - 'a';
+    private static int letterToIndex(char letter, boolean isProperOrder) {
+        if (isProperOrder) {
+            return letter - 'a';
+        }
+        return 'h' - letter;
     }
 }
