@@ -335,7 +335,7 @@ public class CollectionController implements Initializable {
         if (move.isCastle()) {
             ObservableList<Node> originalRookPositionContent;
             ObservableList<Node> newRookPositionContent;
-            if (move.isKingSideCastle()) {
+            if (move.isKingSideCastle() && isBoardWhiteOriented || move.isQueenSideCastle() && !isBoardWhiteOriented) {
                 originalRookPositionContent = stackGrid[CHESSBOARD_RANK_COUNT - 1 - startLocation.rank()][CHESSBOARD_FILE_COUNT - 1].getChildren();
                 newRookPositionContent = stackGrid[CHESSBOARD_RANK_COUNT - 1 - startLocation.rank()][endLocation.file() - 1].getChildren();
             } else {
