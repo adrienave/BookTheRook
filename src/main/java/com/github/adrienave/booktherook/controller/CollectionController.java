@@ -137,6 +137,22 @@ public class CollectionController implements Initializable {
         }
     }
 
+    @FXML
+    public void swapBoard() {
+        if (gameService.getActiveGame() == null) {
+            return;
+        }
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 4; j++) {
+                ObservableList<Node> startPositionContent = stackGrid[j][i].getChildren();
+                ObservableList<Node> endPositionContent = stackGrid[7 - j][7 - i].getChildren();
+
+                swapSquaresContent(startPositionContent, endPositionContent);
+            }
+        }
+    }
+
     public void createGameInFolder(TreeItem<Object> folderItem) {
         String gameName = "Game " + game_index++;
         TreeItem<Object> game = new TreeItem<>(GameRecord.builder().name(gameName).build());
@@ -353,5 +369,22 @@ public class CollectionController implements Initializable {
         sourceSquareContent.clear();
         destinationSquareContent.clear();
         destinationSquareContent.add(piece);
+    }
+
+    private static void swapSquaresContent(ObservableList<Node> firstSquare, ObservableList<Node> secondSquare) {
+        Optional<Node> firstPiece = popPiece(firstSquare);
+        Optional<Node> secondPiece = popPiece(secondSquare);
+
+        secondPiece.ifPresent(firstSquare::add);
+        firstPiece.ifPresent(secondSquare::add);
+    }
+
+    private static Optional<Node> popPiece(ObservableList<Node> square) {
+        if (!square.isEmpty()) {
+            Node piece = square.get(0);
+            square.clear();
+            return Optional.of(piece);
+        }
+        return Optional.empty();
     }
 }
