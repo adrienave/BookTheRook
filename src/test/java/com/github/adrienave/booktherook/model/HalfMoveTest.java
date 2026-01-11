@@ -29,6 +29,14 @@ class HalfMoveTest {
     }
 
     @Test
+    void move_board_location_is_mirrored_when_board_is_oriented_in_opposite_side() {
+        HalfMove move = HalfMove.builder().coordinateNotation("g6d4").build();
+
+        assertThat(move.convertToBoardLocation(true)).extracting(Pair::getKey, Pair::getValue).contains(new Square(6, 5), new Square(3, 3));
+        assertThat(move.convertToBoardLocation(false)).extracting(Pair::getKey, Pair::getValue).contains(new Square(1, 2), new Square(4, 4));
+    }
+
+    @Test
     void is_king_side_castle_only_when_algebraic_move_is_O_dash_O() {
         HalfMove move = HalfMove.builder().algebraicNotation("O-O").build();
 
